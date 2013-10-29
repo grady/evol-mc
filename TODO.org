@@ -1,0 +1,28 @@
+* Implementation [1/5]
+** DONE Target Distribution					      :grady:
+** TODO Design sampler prototypes					:all:
+   - population is a p x 3 matrix, individuals in rows
+   - a chain is a list of populations
+   - updating fn take current population, return next population matrix
+** TODO Multivariate Metropolis
+** TODO Evolutionary MC Sampler
+** TODO Parallel Tempering
+* Simulations
+** Metropolis [0/2]
+ - [ ] variance
+ - [ ] population size
+** Evolutionary MC [0/3]
+ - [ ] Mutation rate
+ - [ ] mutation scale
+ - [ ] population size
+** Parallel tempering [0/2]
+ - [ ] temperatures
+ - [ ] population size
+
+* Report
+** Introduction
+** Methods
+** Results
+** Discussion
+
+* Presentation
