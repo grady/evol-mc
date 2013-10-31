@@ -19,9 +19,3 @@ target <- function(x,means){
   }
   rowMeans(apply(means,1,df))
 }
-
-
-
-
-
-
