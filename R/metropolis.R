@@ -13,6 +13,7 @@
 ##' density is symmetric.
 ##' @return a function which implements the Metropolis-Hasting updater.
 ##' @author Grady Weyenberg
+##' @export
 metropolis <- function(target,rprop,dprop=NULL) {
   if(is.list(rprop)){
     rprop <- lapply(rprop,match.fun)

@@ -2,7 +2,8 @@
 ##'
 ##' This function accepts an arbitrary number of functions. It returns
 ##' a function, which when called repeatedly implements a Gibbs
-##' updating scheme.
+##' updating scheme. (Provided, of course, that the functions are
+##' "carefully selected.")
 ##'
 ##' Each function provided should accept the current state of the
 ##' chain, and return a new state, updating some portion
@@ -21,6 +22,7 @@
 ##' @param ... list of updating functions to be called in sequence.
 ##' @return a function which implements a Gibbs updater.
 ##' @author Grady Weyenberg
+##' @export
 gibbs <- function(...){
   conditionals <- lapply(list(...),match.fun)
   if(length(conditionals)<1) stop("supply at least one function")

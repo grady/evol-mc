@@ -110,6 +110,7 @@ summary.chain <- function(object,discard=0.1,q=c(0.025,0.965),...){
 ##' @method print chain
 ##' @param x chain to summarize
 ##' @param ... passed to print
+##' @export
 print.chain <- function(x,...){
   cat("Chain with",length(x),"states.\n\n")
   cat("Final state:\n")
@@ -124,6 +125,7 @@ print.chain <- function(x,...){
 ##' @param x object from which to extract elements
 ##' @param i index
 ##' @method [ chain
+##' @export
 "[.chain" <- function(x,i){
   val <- NextMethod("[")
   class(val) <- oldClass(x)

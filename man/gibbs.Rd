@@ -14,7 +14,8 @@
 \description{
   This function accepts an arbitrary number of functions.
   It returns a function, which when called repeatedly
-  implements a Gibbs updating scheme.
+  implements a Gibbs updating scheme. (Provided, of course,
+  that the functions are "carefully selected.")
 }
 \details{
   Each function provided should accept the current state of
