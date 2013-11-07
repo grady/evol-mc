@@ -1,4 +1,4 @@
-Package: evol-mc
+Package: evolMC
 Type: Package
 Title: Evolutionary MC Project
 Version: 0.1
@@ -7,3 +7,8 @@ Author: Woodrow Burchett, Edward Roualdes, and Grady Weyenberg
 Maintainer: Grady Weyenberg <grady.weyenberg@uky.edu>
 Description: Experimenting with multi-modal sampling.
 License: MIT
+Collate:
+    'density.R'
+    'gibbs.R'
+    'metropolis.R'
+    'util.R'

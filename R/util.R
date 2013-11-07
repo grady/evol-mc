@@ -3,6 +3,7 @@
 ##' @param ... passed to the `[` function for each element in chain.
 ##' @return a new chain
 ##' @author Grady Weyenberg
+##' @export
 prune <- function(chain,...){
   x <- lapply(chain,`[`,...)
   class(x) <- oldClass(chain)
@@ -14,8 +15,10 @@ prune <- function(chain,...){
 ##' @param n number of times to iterate.
 ##' @param fn function to iterate.
 ##' @param init initial value for chain.
+##' @param ... unused for now.
 ##' @return a list of states at each iteration (length n+1).
 ##' @author Grady Weyenberg
+##' @export
 iterate <- function(n,fn,init,...){
   n <- n+1L
   chain <- vector('list',n)
@@ -34,7 +37,10 @@ iterate <- function(n,fn,init,...){
 ##' containing different variables. Each variable is plotted
 ##' separately, with multiple individual chains overplotted.
 ##' @param x a chain to plot. 
+##' @param ... unused
 ##' @author Grady Weyenberg
+##' @method plot chain
+##' @export
 plot.chain <- function(x,...){
   m <- simplify2array(x)
   d <- dim(m)
@@ -51,6 +57,13 @@ plot.chain <- function(x,...){
   }
 }
 
+##' Create histograms of variables in chain.
+##' @param x chain object
+##' @param discard number or proportion of samples to discard as burnin.
+##' @param ... passed to hist calls.
+##' @author Grady Weyenberg
+##' @method hist chain
+##' @export
 hist.chain <- function(x,discard=0.1,...){
   if(discard<1.0) discard <- round(discard * length(x))
   cat("Discarding first",discard,"states.\n")
@@ -72,17 +85,21 @@ hist.chain <- function(x,discard=0.1,...){
 ##' in the list of chain states should be a matrix with variables to
 ##' be summarized in columns. If there are multiple individual chains
 ##' in the rows they will be all contribute to the summary statistics.
-##' 
+##' @param object  object to be summarized.
+##' @param discard If >=1, remove that many elements from start
+##' of chain before summarizing. If <1.0, removes that
+##' fraction from the chain. Default is 10\%.
+##' @param q quantiles to find.
+##' @param ... unused.
 ##' @param chain list of states to be summarized.
-##' @param discard If >= 1, integer removes that many elements from chain
-##' before summarizing. If < 1.0, removes that fraction from the
-##' chain. Default is 10%.
 ##' @return matrix of summary statistics.
 ##' @author Grady Weyenberg
-summary.chain <- function(chain,discard=0.1,q=c(0.025,0.965),...){
-  if(discard<1.0) discard <- round(discard * length(chain))
-  chain <- chain[-seq_len(discard)]
-  m <- simplify2array(chain)
+##' @method summary chain
+##' @export
+summary.chain <- function(object,discard=0.1,q=c(0.025,0.965),...){
+  if(discard<1.0) discard <- round(discard * length(object))
+  object <- object[-seq_len(discard)]
+  m <- simplify2array(object)
   d <- dim(m)
   f <- function(x) c(mean=mean(x), se=sd(x), quantile(x,q))
   cat("Discarding first",discard,"states.\n")
@@ -90,6 +107,9 @@ summary.chain <- function(chain,discard=0.1,q=c(0.025,0.965),...){
 }
 
 ##' You probably don't really want to see the entire list of states.
+##' @method print chain
+##' @param x chain to summarize
+##' @param ... passed to print
 print.chain <- function(x,...){
   cat("Chain with",length(x),"states.\n\n")
   cat("Final state:\n")
@@ -100,7 +120,11 @@ print.chain <- function(x,...){
 ##' Need this to keep the extraction operator from fucking up the
 ##' class.
 ##' @author Grady Weyenberg
-`[.chain` <- function(x,...){
+##' @rdname extract
+##' @param x object from which to extract elements
+##' @param i index
+##' @method [ chain
+"[.chain" <- function(x,i){
   val <- NextMethod("[")
   class(val) <- oldClass(x)
   val

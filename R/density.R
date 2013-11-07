@@ -1,7 +1,7 @@
 ##' Trivariate 20-part gaussian mixture.
 ##' @title target density
 ##' @param x matrix with observations in rows
-##' @param means 
+##' @param means means
 ##' @return vector of length nrow(x) with density values
 ##' @author Grady Weyenberg
 ##' @export

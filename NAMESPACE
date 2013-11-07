@@ -1,1 +1,6 @@
-
+S3method(hist,chain)
+S3method(plot,chain)
+S3method(summary,chain)
+export(iterate)
+export(prune)
+export(target)
