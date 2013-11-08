@@ -17,7 +17,7 @@
 metropolis <- function(target,rprop,dprop=NULL) {
   rprop <- match.fun(rprop)
   target <- match.fun(target)
-  fn <- function(state){
+  fn <- function(state,...){
     new <- rprop(state)
     a <- target(new) / target(state)
     if(is.function(dprop)) a <- a * dprop(state,new) / dprop(new,state)

@@ -25,7 +25,7 @@ iterate <- function(n,fn,init,...){
   chain[[1]] <- init
   i <- 1L
   while((i <- i+1)<=n){
-    chain[[i]] <- fn(chain[[i-1L]])
+    chain[[i]] <- fn(chain[[i-1L]],...)
   }
   structure(chain, class="chain")
 }
@@ -96,7 +96,7 @@ hist.chain <- function(x,discard=0.1,...){
 ##' @author Grady Weyenberg
 ##' @method summary chain
 ##' @export
-summary.chain <- function(object,discard=0.1,q=c(0.025,0.965),...){
+summary.chain <- function(object,discard=0.1,q=c(0.025,0.975),...){
   if(discard<1.0) discard <- round(discard * length(object))
   object <- object[-seq_len(discard)]
   m <- simplify2array(object)
