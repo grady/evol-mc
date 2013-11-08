@@ -15,33 +15,17 @@
 ##' @author Grady Weyenberg
 ##' @export
 metropolis <- function(target,rprop,dprop=NULL) {
-  if(is.list(rprop)){
-    rprop <- lapply(rprop,match.fun)
-    k <- length(rprop)
-    i <- 0L
-    fn <- function(state){
-      i <<- if(i >= k) 1L else i+1L
-      new <- rprop[[i]](state)
-      a <- target(new)/target(state)
-      if(is.function(dprop[[i]])) a <- a*dprop[[i]](state,new)/dprop[[i]](new,state)
-      i <- a < 1.0 # if false, replace; if true, keep?
-      i[i] <- runif(sum(i)) >= a[i] # keep with prob 1-a
-      state[!i] <- new[!i]
-      attr(state,'accept') <- !i
-      state
-    }
-  } else {
-    rprop <- match.fun(rprop)
-    fn <- function(state){
-      new <- rprop(state)
-      a <- target(new) / target(state)
-      if(is.function(dprop)) a <- a * dprop(state,new) / dprop(new,state)
-      i <- a < 1.0 # if false, replace; if true, keep?
-      i[i] <- runif(sum(i)) >= a[i] # keep with prob 1-a
-      state[!i] <- new[!i]
-      attr(state,'accept') <- !i
-      state
-    } 
-  }
+  rprop <- match.fun(rprop)
+  target <- match.fun(target)
+  fn <- function(state){
+    new <- rprop(state)
+    a <- target(new) / target(state)
+    if(is.function(dprop)) a <- a * dprop(state,new) / dprop(new,state)
+    i <- a < 1.0 # if false, replace; if true, keep?
+    i[i] <- runif(sum(i)) >= a[i] # keep with prob 1-a
+    state[!i] <- new[!i]
+    attr(state,'accept') <- !i
+    state
+  } 
   fn
 }
