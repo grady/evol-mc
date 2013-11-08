@@ -43,20 +43,26 @@ iterate <- function(n,fn,init,...){
 ##' @export
 plot.chain <- function(x,...){
   m <- simplify2array(x)
-  d <- dim(m)
-  op <- par(mfcol=c(2,d[2]))
-  on.exit(par(op))
-  xlim <- c(0,d[3])
-  ylim <- apply(m,2,range)
-  for(i in seq_len(d[2])){
-    name <- dimnames(m)[[2]][i]
-    plot(1,1,'n',xlim,ylim[,i], xlab='index', ylab=name)
-    title(paste("Traceplot of",d[1],"populations"))
-    for(j in seq_len(d[1])) lines(m[j,i,], col=j)
-    acf(as.vector(t(m[,i,])), main=paste("Series", name))
+  if(is.vector(m)){
+    op <- par(mfrow=c(1,2))
+    on.exit(par(op))
+    plot(m)
+    acf(m)
+  } else {
+    d <- dim(m)
+    op <- par(mfcol=c(2,d[2]))
+    on.exit(par(op))
+    xlim <- c(0,d[3])
+    ylim <- apply(m,2,range)
+    for(i in seq_len(d[2])){
+      name <- dimnames(m)[[2]][i]
+      plot(1,1,'n',xlim,ylim[,i], xlab='index', ylab=name)
+      title(paste("Traceplot of",d[1],"populations"))
+      for(j in rev(seq_len(d[1]))) lines(m[j,i,], col=j)
+      acf(as.vector(t(m[,i,])), main=paste("Series", name))
+    }
   }
 }
-
 ##' Create histograms of variables in chain.
 ##' @param x chain object
 ##' @param discard number or proportion of samples to discard as burnin.
@@ -69,12 +75,16 @@ hist.chain <- function(x,discard=0.1,...){
   cat("Discarding first",discard,"states.\n")
   x <- x[-seq_len(discard)]
   m <- simplify2array(x)
-  d <- dim(m)
-  op <- par(mfcol=c(1,d[2]))
-  on.exit(par(op))
-  for(i in seq_len(d[2])){
-    name <- dimnames(m)[[2]][i]
-    hist(m[,i,],...,main=paste("Histogram of",name))
+  if(is.vector(m)){
+    hist(m,...)
+  } else {
+    d <- dim(m)
+    op <- par(mfcol=c(1,d[2]))
+    on.exit(par(op))
+    for(i in seq_len(d[2])){
+      name <- dimnames(m)[[2]][i]
+      hist(m[,i,],...,main=paste("Histogram of",name))
+    }
   }
 }
 
@@ -99,11 +109,10 @@ hist.chain <- function(x,discard=0.1,...){
 summary.chain <- function(object,discard=0.1,q=c(0.025,0.975),...){
   if(discard<1.0) discard <- round(discard * length(object))
   object <- object[-seq_len(discard)]
-  m <- simplify2array(object)
-  d <- dim(m)
   f <- function(x) c(mean=mean(x), se=sd(x), quantile(x,q))
+  m <- simplify2array(object)
   cat("Discarding first",discard,"states.\n")
-  apply(m,2,f)
+  if(is.vector(m)) f(m) else apply(m,2,f)
 }
 
 ##' You probably don't really want to see the entire list of states.

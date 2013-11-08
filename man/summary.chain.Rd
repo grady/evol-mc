@@ -3,7 +3,7 @@
 \title{Basic summary of a chain object.}
 \usage{
   \method{summary}{chain} (object, discard = 0.1,
-    q = c(0.025, 0.965), ...)
+    q = c(0.025, 0.975), ...)
 }
 \arguments{
   \item{object}{object to be summarized.}

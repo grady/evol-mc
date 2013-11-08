@@ -12,3 +12,4 @@ Collate:
     'gibbs.R'
     'metropolis.R'
     'util.R'
+    'temper.R'

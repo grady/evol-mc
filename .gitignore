@@ -2,6 +2,8 @@
 *.o
 *.gz
 *.log
+vignettes/figure
+*.aux
 
 .Rhistory
 *-Ex.R

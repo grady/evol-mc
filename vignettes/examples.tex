@@ -1,0 +1,198 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+\title{evolMC demo}
+\author{Grady Weyenberg}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+\maketitle
+
+evolMC is a framework for doing Monte-Carlo simulations.
+
+We wish to use a metropolis sampler to draw from a distribution with
+density
+\[ f(x) \propto \frac{sin(x)}{x} \cdot 1_{(0,\pi)}(x). \]
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(evolMC)}
+\hlstd{fn} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{sin}\hlstd{(x)}\hlopt{/}\hlstd{x} \hlopt{*} \hlstd{(}\hlnum{0} \hlopt{<} \hlstd{x)} \hlopt{*} \hlstd{(x} \hlopt{<} \hlstd{pi)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+We can use a uniform distribution on $(-1,1)$ to propose distances to
+jump from the current location.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{propose} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+Since the proposal distribution is symmetric, this is enough
+information to implement a Metropolis updater.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{updater} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(fn, propose)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+A Markov chain is formed by iteratively calling the updating function
+starting with some initial value.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{chain} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, updater,} \hlkwc{init} \hlstd{=} \hlkwd{matrix}\hlstd{(}\hlnum{1}\hlstd{))}
+\hlkwd{summary}\hlstd{(chain)}
+\end{alltt}
+\begin{verbatim}
+## Discarding first 1000 states.
+##   mean     se   2.5%  97.5% 
+## 1.0606 0.7365 0.0399 2.6534
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{hist}\hlstd{(chain,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Discarding first 1000 states.
+\end{verbatim}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5} 
+
+\end{knitrout}
+
+
+Of course, multivariate distributions may also be sampled. 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{mvtarget} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{prod}\hlstd{(}\hlkwd{sin}\hlstd{(x)}\hlopt{/}\hlstd{x)} \hlopt{*} \hlkwd{all}\hlstd{(x} \hlopt{>} \hlnum{0}\hlstd{)} \hlopt{*} \hlkwd{all}\hlstd{(x} \hlopt{<} \hlstd{pi)}
+\hlstd{mvupdate} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(mvtarget, propose)}
+\hlstd{chain2} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{1000}\hlstd{, mvupdate,} \hlkwd{cbind}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{2}\hlstd{))}
+\hlkwd{summary}\hlstd{(chain2)}
+\end{alltt}
+\begin{verbatim}
+## Discarding first 100 states.
+##             x      y
+## mean  0.92918 0.9995
+## se    0.67649 0.7103
+## 2.5%  0.04376 0.0510
+## 97.5% 2.43684 2.5511
+\end{verbatim}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(chain2)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6} 
+
+\end{knitrout}
+
+
+If the target density and proposal generator are ``carefully
+selected'' then multiple chains can be run in parallel.  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{chain2} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{100}\hlstd{, updater,} \hlkwc{init} \hlstd{=} \hlkwd{rbind}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{2.5}\hlstd{,} \hlnum{3.1}\hlstd{))}
+\hlkwd{plot}\hlstd{(chain2)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7} 
+
+\end{knitrout}
+
+
+Multiple chains of multivariate samples are also possible
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{mvt2} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{apply}\hlstd{(x,} \hlnum{1}\hlstd{, mvtarget)}
+\hlstd{mvup2} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(mvt2, propose)}
+\hlstd{init} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{2}\hlstd{),} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2.5}\hlstd{))}
+\hlstd{chain3} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{1000}\hlstd{, mvup2, init)}
+\hlkwd{plot}\hlstd{(chain3)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-8} 
+
+\end{knitrout}
+
+
+The chain methods, such as summary, plot, and hist, assume that a
+state is a matrix with individuals in rows, and multiple variables in
+columns, however this is not required by the functions which generate
+the chain. The main requirement is that the following expression is
+valid and that the resulting set of logical values can be used to
+``correctly'' subset the state object. (Where ``target'' is the
+density function, and ``state'' is the current state of the chain.)
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{target}\hlstd{(state)} \hlopt{<} \hlnum{1}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\end{document}
