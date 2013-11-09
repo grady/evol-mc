@@ -16,3 +16,4 @@ Collate:
     'metropolis.R'
     'util.R'
     'temper.R'
+    'crossover.R'

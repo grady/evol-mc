@@ -96,7 +96,7 @@ starting with some initial value.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##    mean      se    2.5%   97.5% 
-## 1.02941 0.71877 0.03665 2.59085
+## 1.11712 0.73918 0.04531 2.66390
 \end{verbatim}
 \begin{alltt}
 \hlkwd{hist}\hlstd{(chain,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
@@ -123,10 +123,10 @@ Of course, multivariate distributions may also be sampled.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##            x      y
-## mean  1.2693 1.2249
-## se    0.8001 0.7878
-## 2.5%  0.1964 0.1418
-## 97.5% 2.9639 2.8915
+## mean  1.2974 1.2333
+## se    0.8146 0.8110
+## 2.5%  0.1614 0.1618
+## 97.5% 3.0129 2.9627
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain2)}
@@ -250,10 +250,10 @@ Gibbs updater.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##          mean    var
-## mean  27.4973 21.193
-## se     0.6529  4.528
-## 2.5%  26.1992 13.922
-## 97.5% 28.7836 31.346
+## mean  27.5091 21.219
+## se     0.6419  4.511
+## 2.5%  26.2784 13.794
+## 97.5% 28.7828 31.273
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -292,10 +292,10 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##          mean    var  kappa
-## mean  27.3595 13.008 0.5383
-## se     0.5861  4.096 0.1463
-## 2.5%  26.2202  6.673 0.2903
-## 97.5% 28.5057 22.357 0.8720
+## mean  27.3737 12.950 0.5509
+## se     0.5899  4.063 0.1495
+## 2.5%  26.2344  6.557 0.3040
+## 97.5% 28.5677 22.392 0.8824
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain4)}
@@ -354,6 +354,96 @@ same as the number of temperature levels.)
 \end{kframe}
 \includegraphics[width=\maxwidth]{figure/unnamed-chunk-42} 
 
+\end{knitrout}
+
+
+Here we go with the real-deal.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{init} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{3}\hlstd{)}
+\hlstd{means} \hlkwb{<-} \hlkwd{t}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,} \hlkwd{runif}\hlstd{(}\hlnum{3}\hlstd{,} \hlopt{-}\hlnum{10}\hlstd{,} \hlnum{10}\hlstd{)))}
+\hlstd{ff} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{target}\hlstd{(x, means)}
+\hlstd{e} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{3}\hlstd{,} \hlkwc{length} \hlstd{=} \hlnum{5}\hlstd{)}
+\hlstd{pf} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlstd{e, e)}
+\hlstd{chainz} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{,} \hlkwd{gibbs}\hlstd{(}\hlkwd{temper}\hlstd{(ff, temps, pf),} \hlkwd{crossover}\hlstd{(ff, temps)),}
+    \hlstd{init,} \hlkwc{bar} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## ===========================================================================
+\end{verbatim}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(chainz)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-51} 
+\begin{kframe}\begin{alltt}
+\hlstd{means}
+\end{alltt}
+\begin{verbatim}
+##          [,1]    [,2]    [,3]
+##  [1,] -0.6754 -8.0863  9.6540
+##  [2,] -4.4817  0.3633 -4.2299
+##  [3,] -7.7012  4.8362  1.5675
+##  [4,] -9.0343 -1.1390 -3.0753
+##  [5,]  9.5861  8.9156  7.0958
+##  [6,] -9.2719  6.8737  0.6592
+##  [7,] -1.3293 -5.5340 -4.5626
+##  [8,]  3.7028  0.9410 -2.2912
+##  [9,]  1.2551  6.5646 -5.7794
+## [10,]  1.3375 -7.1755  3.9643
+## [11,]  6.9805  2.1556  8.9668
+## [12,] -5.0253  1.6122  2.6546
+## [13,]  2.4300  2.4501 -2.4892
+## [14,]  8.7057  5.8989  9.0599
+## [15,] -0.9179  3.2738 -3.5773
+## [16,]  2.0126  1.9202  9.1413
+## [17,] -8.7031 -9.0644  4.1327
+## [18,]  3.6590  5.4958  4.5327
+## [19,] -9.3013 -7.4997 -5.1163
+## [20,] -1.4603  2.0843 -6.8479
+\end{verbatim}
+\begin{alltt}
+\hlkwd{hist}\hlstd{(chainz)}
+\end{alltt}
+\begin{verbatim}
+## Discarding first 1000 states.
+\end{verbatim}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-52} 
+\begin{kframe}\begin{alltt}
+\hlstd{m} \hlkwb{<-} \hlkwd{aperm}\hlstd{(}\hlkwd{simplify2array}\hlstd{(chainz))}
+\hlkwd{library}\hlstd{(scatterplot3d)}
+\hlstd{pp} \hlkwb{<-} \hlkwd{scatterplot3d}\hlstd{(means)}
+\hlkwd{sapply}\hlstd{(}\hlnum{5}\hlopt{:}\hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) pp}\hlopt{$}\hlkwd{points3d}\hlstd{(m[, , i],} \hlkwc{col} \hlstd{= i} \hlopt{+} \hlnum{1}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+## [[1]]
+## NULL
+## 
+## [[2]]
+## NULL
+## 
+## [[3]]
+## NULL
+## 
+## [[4]]
+## NULL
+## 
+## [[5]]
+## NULL
+\end{verbatim}
+\begin{alltt}
+\hlstd{pp}\hlopt{$}\hlkwd{points3d}\hlstd{(means,} \hlkwc{col} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-53} 
+\begin{kframe}\begin{alltt}
+
+## library(rgl) plot3d(m[,,1]) plot3d(means,pch=19,size=15)
+## sapply(1:5,function(i) points3d(m[,,i],col=i+1))
+\end{alltt}
+\end{kframe}
 \end{knitrout}
 
 \end{document}

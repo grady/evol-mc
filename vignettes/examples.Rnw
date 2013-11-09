@@ -5,6 +5,7 @@
 %\VignetteEngine{knitr::knitr}
 
 <<preamble,echo=FALSE,results='hide'>>=
+library(knitr)
 options(width=75)
 opts_chunk$set(dev='png',dpi=150)
 library(evolMC)
@@ -178,5 +179,29 @@ plot(gch)
 xx <- prune(gch,1,1) #extract chain with correct distribution
 hist(xx,freq=FALSE,breaks="fd")
 curve((dnorm(x)+dnorm(x,10))/2,add=TRUE)
+@ 
+
+Here we go with the real-deal.
+<<cache=TRUE>>=
+init <- matrix(0,5,3)
+means <- t(replicate(20, runif(3,-10,10)))
+ff <- function(x) target(x,means)
+e <- seq(.2,3,length=5)
+pf <- function(x) x+runif(length(x),-e,e)
+chainz <- iterate(10000,gibbs(temper(ff,temps,pf),crossover(ff,temps)),init,bar=TRUE)
+plot(chainz)
+means
+hist(chainz)
+m <- aperm(simplify2array(chainz))
+library(scatterplot3d)
+pp <- scatterplot3d(means)
+sapply(5:1,function(i) pp$points3d(m[,,i],col=i+1))
+pp$points3d(means,col=1,pch=19)
+
+##library(rgl)
+#plot3d(m[,,1])
+##plot3d(means,pch=19,size=15)
+##sapply(1:5,function(i) points3d(m[,,i],col=i+1))
+
 @ 
 \end{document}

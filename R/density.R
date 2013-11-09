@@ -10,6 +10,7 @@
 ##' target(matrix(1:12,4,3),means)
 ##' ## rowMeans(apply(means,1,function(mean) dmvnorm(matrix(1:12,4,3),mean,diag(3)/10)))
 target <- function(x,means){
+  if(is.vector(x)) x <- matrix(x,1)
   if(ncol(x) != 3L) stop("x must have 3 colums")
   const <- 3 * (log(0.1)+log(2*pi))
   df <- function(mean){ #multivariate density
@@ -17,5 +18,6 @@ target <- function(x,means){
     d <- rowSums(x * x) * 10
     exp(-(const + d)/2)
   }
-  rowMeans(apply(means,1,df))
+  val <- apply(means,1,df)
+  if(is.matrix(val)) rowMeans(val) else mean(val)
 }
