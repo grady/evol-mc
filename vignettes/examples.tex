@@ -301,15 +301,20 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
 \hlkwd{plot}\hlstd{(chain4)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/gibbs-metropolis1} 
-\begin{kframe}\begin{alltt}
+\includegraphics[width=\maxwidth]{figure/gibbs-metropolis} 
+
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlkwd{hist}\hlstd{(chain4,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Discarding first 1000 states.
 \end{verbatim}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/gibbs-metropolis2} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-3} 
 
 \end{knitrout}
 
@@ -340,9 +345,16 @@ same as the number of temperature levels.)
 \hlkwd{plot}\hlstd{(gch)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-41} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5} 
 \begin{kframe}\begin{alltt}
 \hlstd{xx} \hlkwb{<-} \hlkwd{prune}\hlstd{(gch,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{)}  \hlcom{#extract chain with correct distribution}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlkwd{hist}\hlstd{(xx,} \hlkwc{freq} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
@@ -352,7 +364,7 @@ same as the number of temperature levels.)
 \hlkwd{curve}\hlstd{((}\hlkwd{dnorm}\hlstd{(x)} \hlopt{+} \hlkwd{dnorm}\hlstd{(x,} \hlnum{10}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-42} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6} 
 
 \end{knitrout}
 
@@ -382,35 +394,17 @@ The target function is a part of the evolMC package.
 \hlkwd{plot}\hlstd{(chainz)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-61} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-71} 
 \begin{kframe}\begin{alltt}
 \hlcom{## means hist(chainz)}
 \hlstd{m} \hlkwb{<-} \hlkwd{aperm}\hlstd{(}\hlkwd{simplify2array}\hlstd{(chainz))}
 \hlkwd{library}\hlstd{(scatterplot3d)}
 \hlstd{pp} \hlkwb{<-} \hlkwd{scatterplot3d}\hlstd{(means)}
-\hlkwd{sapply}\hlstd{(}\hlnum{5}\hlopt{:}\hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) pp}\hlopt{$}\hlkwd{points3d}\hlstd{(m[, , i],} \hlkwc{col} \hlstd{= i} \hlopt{+} \hlnum{1}\hlstd{))}
-\end{alltt}
-\begin{verbatim}
-## [[1]]
-## NULL
-## 
-## [[2]]
-## NULL
-## 
-## [[3]]
-## NULL
-## 
-## [[4]]
-## NULL
-## 
-## [[5]]
-## NULL
-\end{verbatim}
-\begin{alltt}
+\hlkwd{invisible}\hlstd{(}\hlkwd{sapply}\hlstd{(}\hlnum{5}\hlopt{:}\hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) pp}\hlopt{$}\hlkwd{points3d}\hlstd{(m[, , i],} \hlkwc{col} \hlstd{= i} \hlopt{+} \hlnum{1}\hlstd{)))}
 \hlstd{pp}\hlopt{$}\hlkwd{points3d}\hlstd{(means,} \hlkwc{col} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-62} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-72} 
 \begin{kframe}\begin{alltt}
 ## library(rgl) plot3d(m[,,1]) plot3d(means,pch=19,size=15)
 ## sapply(1:5,function(i) points3d(m[,,i],col=i+1))
