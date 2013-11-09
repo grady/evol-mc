@@ -4,7 +4,7 @@
 *.log
 vignettes/figure
 *.aux
-
+vignettes/cache
 .Rhistory
 *-Ex.R
 
