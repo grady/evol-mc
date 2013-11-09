@@ -357,7 +357,11 @@ same as the number of temperature levels.)
 \end{knitrout}
 
 
-Here we go with the real-deal.
+\subsection{Evolutionary MC}
+
+Here we go with the real-deal. Twenty part trivariate-gaussian mixure.
+The target function is a part of the evolMC package. 
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -367,51 +371,20 @@ Here we go with the real-deal.
 \hlstd{e} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{3}\hlstd{,} \hlkwc{length} \hlstd{=} \hlnum{5}\hlstd{)}
 \hlstd{pf} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlstd{e, e)}
 \hlstd{chainz} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{,} \hlkwd{gibbs}\hlstd{(}\hlkwd{temper}\hlstd{(ff, temps, pf),} \hlkwd{crossover}\hlstd{(ff, temps)),}
-    \hlstd{init,} \hlkwc{bar} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+    \hlstd{init)}
 \end{alltt}
-\begin{verbatim}
-## ===========================================================================
-\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chainz)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-51} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-61} 
 \begin{kframe}\begin{alltt}
-\hlstd{means}
-\end{alltt}
-\begin{verbatim}
-##          [,1]    [,2]    [,3]
-##  [1,] -0.6754 -8.0863  9.6540
-##  [2,] -4.4817  0.3633 -4.2299
-##  [3,] -7.7012  4.8362  1.5675
-##  [4,] -9.0343 -1.1390 -3.0753
-##  [5,]  9.5861  8.9156  7.0958
-##  [6,] -9.2719  6.8737  0.6592
-##  [7,] -1.3293 -5.5340 -4.5626
-##  [8,]  3.7028  0.9410 -2.2912
-##  [9,]  1.2551  6.5646 -5.7794
-## [10,]  1.3375 -7.1755  3.9643
-## [11,]  6.9805  2.1556  8.9668
-## [12,] -5.0253  1.6122  2.6546
-## [13,]  2.4300  2.4501 -2.4892
-## [14,]  8.7057  5.8989  9.0599
-## [15,] -0.9179  3.2738 -3.5773
-## [16,]  2.0126  1.9202  9.1413
-## [17,] -8.7031 -9.0644  4.1327
-## [18,]  3.6590  5.4958  4.5327
-## [19,] -9.3013 -7.4997 -5.1163
-## [20,] -1.4603  2.0843 -6.8479
-\end{verbatim}
-\begin{alltt}
-\hlkwd{hist}\hlstd{(chainz)}
-\end{alltt}
-\begin{verbatim}
-## Discarding first 1000 states.
-\end{verbatim}
-\end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-52} 
-\begin{kframe}\begin{alltt}
+\hlcom{## means hist(chainz)}
 \hlstd{m} \hlkwb{<-} \hlkwd{aperm}\hlstd{(}\hlkwd{simplify2array}\hlstd{(chainz))}
 \hlkwd{library}\hlstd{(scatterplot3d)}
 \hlstd{pp} \hlkwb{<-} \hlkwd{scatterplot3d}\hlstd{(means)}
@@ -437,9 +410,8 @@ Here we go with the real-deal.
 \hlstd{pp}\hlopt{$}\hlkwd{points3d}\hlstd{(means,} \hlkwc{col} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-53} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-62} 
 \begin{kframe}\begin{alltt}
-
 ## library(rgl) plot3d(m[,,1]) plot3d(means,pch=19,size=15)
 ## sapply(1:5,function(i) points3d(m[,,i],col=i+1))
 \end{alltt}
