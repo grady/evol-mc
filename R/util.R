@@ -131,12 +131,33 @@ print.chain <- function(x,...){
 ##' class.
 ##' @author Grady Weyenberg
 ##' @rdname extract
-##' @param x object from which to extract elements
-##' @param i index
 ##' @method [ chain
 ##' @export
+##' @param x object to be extracted
+##' @param i index
 "[.chain" <- function(x,i){
   val <- NextMethod("[")
   class(val) <- oldClass(x)
   val
 }
+
+##' @rdname extract
+##' @method [<- chain
+##' @param value value to be assigned
+##' @export
+"[<-.chain" <- function(x,i,value){
+  val <- NextMethod("[<-")
+  class(val) <- oldClass(x)
+  val
+}
+
+
+##' Transform a chain to an array
+##'
+##' Not much else to say about this.
+##' @param x chain object
+##' @param ... passed to simplify2array
+##' @return an array (or possibly a matrix, or vector if appropriate)
+##' @author Grady Weyenberg
+##' @method as.array chain
+as.array.chain <- function(x,...) simplify2array(x,...) 

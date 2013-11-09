@@ -1,15 +1,21 @@
 \name{temper}
 \alias{temper}
-\title{Returns a function which implements the exchange update step.}
+\title{Returns a function which implements parallel tempering.}
 \usage{
-  temper(fn)
+  temper(target, temps, rprop, dprop = NULL)
 }
 \arguments{
-  \item{fn}{heated density function (see heat)}
+  \item{target}{target density}
+
+  \item{temps}{temperature ladder}
+
+  \item{rprop}{proposal generator}
+
+  \item{dprop}{proposal density. only needed if
+  non-symmetric.}
 }
 \value{
-  a function implementing the parallel tempering exchange
-  operation.
+  a function implementing a parallel tempering update.
 }
 \description{
   foobar
@@ -17,9 +23,9 @@
 \examples{
 init <- rbind(1,2,3,4,5)
 f <- function(state) exp(sum(log(dnorm(state) + dnorm(state,10)))) #gaussian mixture target
-g <- heat(f,c(1,5,10,15,25)) #heated densities
 gp <- function(state) state + rnorm(length(state)) #proposal distribution
-gch <- iterate(10000,gibbs(metropolis(g,gp),temper(g)),init)
+temps <- c(1,5,10,15,25)
+gch <- iterate(10000,temper(f,temps,gp),init)
 plot(gch)
 xx <- prune(gch,1,1) #extract the chain with correct target distribution
 hist(xx,freq=FALSE)

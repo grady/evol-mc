@@ -41,21 +41,29 @@ exchange <- function(state){
 ##' for(i in 2:5) lines(y~x,density(unlist(prune(gch,i,TRUE)))[1:2])
 heat <- function(fn,temps=1,beta=1/temps) function(state) apply(state,1,fn)^beta
 
-##' Returns a function which implements the exchange update step.
+##' Returns a function which implements parallel tempering.
 ##'
 ##' foobar
-##' @param fn heated density function (see heat)
-##' @return a function implementing the parallel tempering exchange operation.
+##' @param target target density
+##' @param temps temperature ladder
+##' @param rprop proposal generator
+##' @param dprop proposal density. only needed if non-symmetric.
+##' @return a function implementing a parallel tempering update.
 ##' @author Grady Weyenberg
 ##' @export
 ##' @examples
 ##' init <- rbind(1,2,3,4,5)
 ##' f <- function(state) exp(sum(log(dnorm(state) + dnorm(state,10)))) #gaussian mixture target
-##' g <- heat(f,c(1,5,10,15,25)) #heated densities
 ##' gp <- function(state) state + rnorm(length(state)) #proposal distribution
-##' gch <- iterate(10000,gibbs(metropolis(g,gp),temper(g)),init)
+##' temps <- c(1,5,10,15,25)
+##' gch <- iterate(10000,temper(f,temps,gp),init)
 ##' plot(gch)
 ##' xx <- prune(gch,1,1) #extract the chain with correct target distribution
 ##' hist(xx,freq=FALSE)
 ##' curve((dnorm(x)+dnorm(x,10))/2,add=TRUE)
-temper <- function(fn) metropolis(function(x) exp(sum(log(fn(x)))),exchange)
+temper <- function(target,temps,rprop,dprop=NULL){
+  g <- heat(target,temps)
+  m <- metropolis(g,rprop,dprop)
+  e <- metropolis(function(x) exp(sum(log(g(x)))), exchange)
+  function(state) e(m(state))
+}

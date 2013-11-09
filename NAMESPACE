@@ -1,4 +1,5 @@
 S3method("[",chain)
+S3method("[<-",chain)
 S3method(hist,chain)
 S3method(plot,chain)
 S3method(print,chain)

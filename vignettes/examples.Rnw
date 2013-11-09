@@ -1,6 +1,14 @@
 \documentclass{article}
+\usepackage{fullpage}
 %\VignetteIndexEntry{evolMC demo} 
-%\VignetteDepends{evolMC} 
+%\VignetteDepends{evolMC,knitr} 
+%\VignetteEngine{knitr::knitr}
+
+<<preamble,echo=FALSE,results='hide'>>=
+options(width=75)
+opts_chunk$set(dev='png',dpi=150)
+library(evolMC)
+@ 
 
 \title{evolMC demo}
 \author{Grady Weyenberg}
@@ -9,74 +17,166 @@
 
 evolMC is a framework for doing Monte-Carlo simulations.
 
+\subsection{Univariate and multivariate sampling}
 We wish to use a metropolis sampler to draw from a distribution with
-density
-\[ f(x) \propto \frac{sin(x)}{x} \cdot 1_{(0,\pi)}(x). \]
-<<>>=
-library(evolMC)
-fn <- function(x) sin(x)/x * (0<x) * (x<pi)
-@ 
-
-We can use a uniform distribution on $(-1,1)$ to propose distances to
+density \[ f(x) \propto \frac{\sin(x)}{x} \cdot 1_{(0,\pi)}(x). \] We
+can use a uniform distribution on $(-1,1)$ to propose distances to
 jump from the current location.
-<<>>=
-propose <- function(x) x+runif(length(x),-1,1)
-@ 
+
 
 Since the proposal distribution is symmetric, this is enough
 information to implement a Metropolis updater.
-<<>>=
+
+<<univariate>>=
+fn <- function(x) sin(x)/x * (0<x) * (x<pi)
+propose <- function(x) x+runif(length(x),-1,1)
 updater <- metropolis(fn, propose)
 @ 
 
 A Markov chain is formed by iteratively calling the updating function
 starting with some initial value.
-<<>>=
-chain <- iterate(10000, updater, init=matrix(1))
+<<fig.height=4,cache=TRUE>>=
+chain <- iterate(n=10000, fn=updater, init=1)
 summary(chain)
-@ 
-
-<<fig.height=4>>=
 hist(chain,breaks="fd")
-@ 
+@
 
 Of course, multivariate distributions may also be sampled. 
-<<>>=
-mvtarget <- function(x) prod(sin(x)/x) * all(x>0) * all(x<pi)
+<<mvt,cache=TRUE>>=
+mvtarget <- function(x) prod(sin(prod(x))/x) * all(x>0,x<pi,prod(x)<pi)
 mvupdate <- metropolis(mvtarget, propose)
-chain2 <- iterate(1000,mvupdate, cbind(x=1,y=2))
+chain2 <- iterate(10000,mvupdate, cbind(x=1,y=1))
 summary(chain2)
 plot(chain2)
+plot(t(simplify2array(chain2)[1,,]))
 @ 
 
-If the target density and proposal generator are ``carefully
-selected'' then multiple chains can be run in parallel.  
-<<>>=
-chain2 <- iterate(100,updater,init=rbind(0.1,.5,2.5,3.1))
-plot(chain2)
-@ 
-
-Multiple chains of multivariate samples are also possible
-<<>>=
-mvt2 <- function(x) apply(x,1,mvtarget)
-mvup2 <- metropolis(mvt2, propose)
-init <- rbind(c(x=1,y=2),c(.1,.5),c(3,2.5))
-chain3 <- iterate(1000,mvup2,init)
+\subsection{Multiple chains in parallel}
+If the target density returns a vector instead of a scalar, we can run
+multiple chains in parallel. (In this case the state object is a
+matrix with individuals in rows.) In this situation, the proposal
+updater should update the entire population.
+<<parallel,cache=TRUE>>=
+chain3 <- iterate(100,updater,init=rbind(0.1,.5,2.5,3.1))
 plot(chain3)
 @ 
 
-The chain methods, such as summary, plot, and hist, assume that a
-state is a matrix with individuals in rows, and multiple variables in
-columns, however this is not required by the functions which generate
-the chain. The main requirement is that the following expression is
-valid and that the resulting set of logical values can be used to
-``correctly'' subset the state object. (Where ``target'' is the
-density function, and ``state'' is the current state of the chain.)
-
-<<eval=FALSE>>=
-target(state) < 1.0
+Multiple chains of multivariate samples are also possible, as long as
+a logical vector of the same length as that returned by the density
+function will ``correctly'' subset individuals from the population
+state object. \footnote{Thus, a population can be a vector, a matrix with
+individuals in rows, or a list. Some convenience methods such as
+print, summary, plot, hist, etc., assume a population is a matrix, but
+this is not strictly required.}
+<<multi-multi,cache=TRUE>>=
+mvt2 <- function(x) apply(x,1,mvtarget)
+mvup2 <- metropolis(mvt2, propose)
+init <- rbind(c(x=1,y=3),c(.1,.5),c(1,1))
+chain4 <- iterate(1000,mvup2,init)
+plot(chain4)
 @ 
 
-The exact meaning of ``correct'' can vary based on what you are trying
-to do.
+\subsection{Gibbs sampling}
+\label{sec:gibbs-sampling}
+A gibbs updater calls several updating functions sequentially. Here we
+find Baysean location-scale parameter estimates for a t-distribution
+likelihood with known degrees of freedom $5/2$. The model
+specification in this case is $y|\mu,w\sim N(\mu,w^{-1})$ and
+$w|\sigma^2,\nu\sim G(\nu/2,\sigma^2\nu/2)$, with priors $\mu\sim N$
+and $\sigma^2\sim G$.
+<<>>=
+newcomb <- c(28,-44,29,30,26,27,22,23,33,16,24,29,24,40,21,31,
+             34,-2,25,19,24,28,37,32,20,25,25,36,36,21,28,26,32,
+             28,26,30,36,29,30,22,36,27,26,28,29,23,31,32,24,27,
+             27,27,32,25,28,27,26,24,32,29,28,33,39,25,16,23)
+##' Full conditional updater for mu 
+f.m <- function(state,...){
+  k <-  seq_len(ncol(state) - length(newcomb))
+  w <- rowSums(state[,-k])
+  mu <- (state[,-k] %*% newcomb) / (0.0001 + w)
+  sd <- 1/sqrt(0.0001 + w)
+  n <- nrow(state)
+  state[,1] <- rnorm(n, mu, sd)
+  state
+}
+##' Full conditional updater for sigma^2
+f.v <- function(state,df=FALSE){
+  nu <- if(df) 1/state[,3] else 5.0
+  k <-  seq_len(ncol(state) - length(newcomb))
+  n <- ncol(state[,-k])
+  rates <- 0.1 + rowSums(state[,-k]) * nu/2
+  state[,2] <- rgamma(nrow(state), 0.1+n*nu/2, rates)
+  state
+}
+##' Full conditional updater for w
+f.w <- function(state,df=FALSE){
+  nu <- if(df) 1/state[,3] else 5.0
+  k <-  seq_len(ncol(state) - length(newcomb))
+  rate <- (nu * state[,2] + t(apply(state,1,function(row) (newcomb-row[1])^2)))/2
+  state[,-k] <- rgamma(length(state[,-k]),(nu+1)/2,rate)
+  state
+}
+@ 
+The gibbs function is used to create a function which acts as the
+Gibbs updater.
+
+<<gibbs,eval=TRUE,cache=TRUE>>=
+init <- rbind(c(mean=25,var=22,rgamma(length(newcomb), 5/2,22*5/2)),
+              c(10,10,rgamma(length(newcomb),5/2,10*5/2)))
+newcomb.gibbs <- gibbs(f.m,f.v,f.w)
+chain5 <- iterate(10000,newcomb.gibbs,init)
+chain5 <- prune(chain5,TRUE,1:2)
+plot(chain5)
+summary(chain5)
+@ 
+
+Of course, you can use a metropolis updater in place of a full
+conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
+<<gibbs-metropolis,cache=TRUE>>=
+dtexp <- function(x,rate=1,min=0,max=Inf,log=FALSE){
+  d <- dexp(x,rate) * (x>=min) * (x<=max)
+  c <- pexp(max,rate)-pexp(min,rate)
+  if(log) log(d/c) else d/c
+}
+posterior <- function(state){
+  if(!is.matrix(state)) state <- matrix(state,1)
+  f <- function(x) sum(dt((newcomb-x[1])/sqrt(x[2]), 1/x[3], log=TRUE) - log(x[2])/2)
+  exp(apply(state,1,f) + dnorm(state[,1],sd=100,log=TRUE) +
+      dgamma(state[,2],.1,.1,log=TRUE) + dtexp(state[,3],max=1,log=TRUE))
+}
+kappa.prop <- function(state){
+  state[,3] <- runif(nrow(state))
+  state
+}
+init <- rbind(c(mean=25,var=22,kappa=0.5,rgamma(length(newcomb), 5/2,22*5/2)),
+              c(10,10,0.4,rgamma(length(newcomb),5/2,10*5/2)))
+newcomb.chain3 <- gibbs(f.m,f.v,f.w,metropolis(posterior,kappa.prop))
+chain4 <- iterate(10000,newcomb.chain3,init,df=TRUE)
+chain4 <- prune(chain4,TRUE,1:3)
+summary(chain4)
+plot(chain4)
+hist(chain4,breaks='fd')
+@ 
+
+\subsection{Parallel tempering}
+We want to sample from a distribution with separated modes.  First we
+set up the target distribution function. This function should take a
+single individual and return the density of that individual.
+<<>>=
+f <- function(state) exp(sum(log(dnorm(state) + dnorm(state,10))))
+@ 
+Now we can set up the parallel tempering updater. Function temper is similar to
+metropolis, but you must also provide a list of temperatures. (It is
+assumed that the number of individuals in the population will be the
+same as the number of temperature levels.)
+<<cache=TRUE>>=
+temps <- c(1,2,4,8,15)
+updater <- temper(f,temps,propose)
+init <- rbind(-3,0,5,10,15)
+gch <- iterate(10000,updater,init)
+plot(gch)
+xx <- prune(gch,1,1) #extract chain with correct distribution
+hist(xx,freq=FALSE,breaks="fd")
+curve((dnorm(x)+dnorm(x,10))/2,add=TRUE)
+@ 
 \end{document}
