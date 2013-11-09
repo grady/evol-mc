@@ -19,13 +19,18 @@ prune <- function(chain,...){
 ##' @return a list of states at each iteration (length n+1).
 ##' @author Grady Weyenberg
 ##' @export
-iterate <- function(n,fn,init,...){
+iterate <- function(n,fn,init,...,bar=FALSE){
   n <- n+1L
   chain <- vector('list',n)
   chain[[1]] <- init
   i <- 1L
+  if(bar){
+    pb <- txtProgressBar(i,n)
+    on.exit(close(pb))
+  }
   while((i <- i+1)<=n){
     chain[[i]] <- fn(chain[[i-1L]],...)
+    if(bar) setTxtProgressBar(pb,i)
   }
   structure(chain, class="chain")
 }
