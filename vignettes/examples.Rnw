@@ -172,9 +172,9 @@ Now we can set up the parallel tempering updater. Function temper is similar to
 metropolis, but you must also provide a list of temperatures. (It is
 assumed that the number of individuals in the population will be the
 same as the number of temperature levels.)
-<<cache=TRUE>>=
+<<tempering,cache=TRUE>>=
 temps <- c(1,2,4,8,15)
-updater <- temper(f,temps,propose)
+updater <- mutate(heat(f,temps),propose)
 init <- rbind(-3,0,5,10,15)
 gch <- iterate(10000,updater,init)
 plot(gch)
@@ -191,25 +191,31 @@ Here we go with the real-deal. Twenty part trivariate-gaussian mixure.
 The target function is a part of the evolMC package. 
 
 <<runevol,cache=TRUE>>=
-init <- matrix(0,5,3)
 means <- t(replicate(20, runif(3,-10,10)))
-ff <- function(x) target(x,means)
+dmix <- function(x) target(x,means)
+ladder <- heat(dmix,temps)
 e <- seq(.2,3,length=5)
-pf <- function(x) x+runif(length(x),-e,e)
-chainz <- iterate(10000,gibbs(temper(ff,temps,pf),crossover(ff,temps)),init)
+runif3 <- function(x) x+runif(length(x),-e,e)
+evolve <- gibbs(reproduce(ladder), mutate(ladder,runif3), p=c(1,1))
+
+init <- matrix(0,5,3)
+lineage <- iterate(100, evolve, init,bar=1)
+
 @ 
 <<>>=
-plot(chainz)
-## means
-## hist(chainz)
-m <- aperm(simplify2array(chainz))
+plot(lineage)
+m <- aperm(simplify2array(lineage))
 library(scatterplot3d)
 pp <- scatterplot3d(means)
 invisible(sapply(5:1,function(i) pp$points3d(m[,,i],col=i+1)))
 pp$points3d(means,col=1,pch=19)
+
+pairs(m[,,1])
+
 ##library(rgl)
-#plot3d(m[,,1])
-##plot3d(means,pch=19,size=15)
-##sapply(1:5,function(i) points3d(m[,,i],col=i+1))
+## plot3d(m[,,1])
+## plot3d(means,pch=19,size=15)
+## sapply(1:5,function(i) points3d(m[,,i],col=i+1))
+
 @ 
 \end{document}

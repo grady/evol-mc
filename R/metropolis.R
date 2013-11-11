@@ -22,7 +22,9 @@ metropolis <- function(target,rprop,dprop=NULL) {
     a <- target(new) / target(state)
     if(is.function(dprop)) a <- a * dprop(state,new) / dprop(new,state)
     i <- a < 1.0 # if false, replace; if true, keep?
+    ## tryCatch(
     i[i] <- runif(sum(i)) >= a[i] # keep with prob 1-a
+    ## error=browser())
     state[!i] <- new[!i]
     attr(state,'accept') <- !i
     state

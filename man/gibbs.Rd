@@ -2,11 +2,14 @@
 \alias{gibbs}
 \title{Create a gibbs sampler object.}
 \usage{
-  gibbs(...)
+  gibbs(..., p = FALSE)
 }
 \arguments{
   \item{...}{list of updating functions to be called in
   sequence.}
+
+  \item{p}{if not false, weights to stochastically select
+  an updating function.}
 }
 \value{
   a function which implements a Gibbs updater.
@@ -20,11 +23,12 @@
 \details{
   Each function provided should accept the current state of
   the chain, and return a new state, updating some portion
-  of the state using the full conditional.
+  of the state using (presumably) a full conditional.
 
   Each time the Gibbs sampler object is called, it will
-  choose one of the provided functions (in succession) and
-  use it to produce the new state.
+  choose one of the provided functions, either in
+  succession or stochastically, depending on the value of
+  p, and use it to produce the new state.
 
   The signature of the returned function is
 

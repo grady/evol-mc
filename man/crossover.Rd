@@ -1,19 +1,17 @@
 \name{crossover}
 \alias{crossover}
-\title{Create a crossover updater}
+\title{Proposes matings uniformly.}
 \usage{
-  crossover(target, temps)
+  crossover(state)
 }
 \arguments{
-  \item{target}{target density}
-
-  \item{temps}{temperature ladder}
+  \item{state}{population matrix of parents}
 }
 \value{
-  a function that implements the crossover updater
+  a new state
 }
 \description{
-  Create a crossover updater
+  Does proposes a uniform k=1 crossover.
 }
 \author{
   Grady Weyenberg

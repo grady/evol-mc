@@ -10,12 +10,14 @@ prune <- function(chain,...){
   x
 }
 
+
 ##' Iteratively call a function.
 ##'
 ##' @param n number of times to iterate.
 ##' @param fn function to iterate.
 ##' @param init initial value for chain.
 ##' @param ... unused for now.
+##' @param bar print a progress bar?
 ##' @return a list of states at each iteration (length n+1).
 ##' @author Grady Weyenberg
 ##' @export

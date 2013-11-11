@@ -15,5 +15,6 @@ Collate:
     'gibbs.R'
     'metropolis.R'
     'util.R'
-    'temper.R'
-    'crossover.R'
+    'compose.R'
+    'evolve.R'
+    'proposals.R'
