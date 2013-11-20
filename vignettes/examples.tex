@@ -96,7 +96,7 @@ starting with some initial value.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##    mean      se    2.5%   97.5% 
-## 1.07272 0.73094 0.04298 2.62731
+## 1.08190 0.74694 0.03989 2.66923
 \end{verbatim}
 \begin{alltt}
 \hlkwd{hist}\hlstd{(chain,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
@@ -123,10 +123,10 @@ Of course, multivariate distributions may also be sampled.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##            x      y
-## mean  1.2297 1.2202
-## se    0.7769 0.7650
-## 2.5%  0.1698 0.1793
-## 97.5% 2.9079 2.9159
+## mean  1.2498 1.2659
+## se    0.8048 0.8122
+## 2.5%  0.1654 0.1636
+## 97.5% 2.9795 3.0156
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain2)}
@@ -250,10 +250,10 @@ Gibbs updater.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##          mean    var
-## mean  27.4873 21.008
-## se     0.6583  4.757
-## 2.5%  26.1741 13.412
-## 97.5% 28.7715 31.638
+## mean  27.4981 21.807
+## se     0.6643  4.952
+## 2.5%  26.2065 14.042
+## 97.5% 28.7900 33.356
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -291,11 +291,11 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
 \end{alltt}
 \begin{verbatim}
 ## Discarding first 1000 states.
-##         mean    var  kappa
-## mean  27.370 13.513 0.5272
-## se     0.597  4.234 0.1425
-## 2.5%  26.157  7.008 0.2749
-## 97.5% 28.537 23.501 0.8418
+##          mean    var  kappa
+## mean  27.3631 13.077 0.5479
+## se     0.5975  4.020 0.1503
+## 2.5%  26.2086  6.387 0.2911
+## 97.5% 28.5518 22.484 0.8858
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain4)}
@@ -339,6 +339,7 @@ same as the number of temperature levels.)
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{temps} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{8}\hlstd{,} \hlnum{15}\hlstd{)}
+\hlstd{t} \hlkwb{<-} \hlkwd{length}\hlstd{(temps)}
 \hlstd{updater} \hlkwb{<-} \hlkwd{mutate}\hlstd{(}\hlkwd{heat}\hlstd{(f, temps), propose)}
 \hlstd{init} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlopt{-}\hlnum{3}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{10}\hlstd{,} \hlnum{15}\hlstd{)}
 \hlstd{gch} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, updater, init)}
@@ -382,10 +383,11 @@ The target function is a part of the evolMC package.
 \hlstd{ladder} \hlkwb{<-} \hlkwd{heat}\hlstd{(dmix, temps)}
 \hlstd{e} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{3}\hlstd{,} \hlkwc{length} \hlstd{=} \hlnum{5}\hlstd{)}
 \hlstd{runif3} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlstd{e, e)}
-\hlstd{evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif3),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
+\hlstd{runif4} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{rnorm}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlnum{0}\hlstd{,} \hlnum{0.25} \hlopt{*} \hlstd{temps)}
+\hlstd{evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif4),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.7}\hlstd{,} \hlnum{0.3}\hlstd{))}
 
-\hlstd{init} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{3}\hlstd{)}
-\hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, evolve, init,} \hlkwc{bar} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{init} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{runif}\hlstd{(t} \hlopt{*} \hlnum{3}\hlstd{), t,} \hlnum{3}\hlstd{)}
+\hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{1000}\hlstd{, evolve, init,} \hlkwc{bar} \hlstd{=} \hlnum{1}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## ===========================================================================
@@ -404,7 +406,7 @@ The target function is a part of the evolMC package.
 \hlstd{m} \hlkwb{<-} \hlkwd{aperm}\hlstd{(}\hlkwd{simplify2array}\hlstd{(lineage))}
 \hlkwd{library}\hlstd{(scatterplot3d)}
 \hlstd{pp} \hlkwb{<-} \hlkwd{scatterplot3d}\hlstd{(means)}
-\hlkwd{invisible}\hlstd{(}\hlkwd{sapply}\hlstd{(}\hlnum{5}\hlopt{:}\hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) pp}\hlopt{$}\hlkwd{points3d}\hlstd{(m[, , i],} \hlkwc{col} \hlstd{= i} \hlopt{+} \hlnum{1}\hlstd{)))}
+\hlkwd{invisible}\hlstd{(}\hlkwd{sapply}\hlstd{(t}\hlopt{:}\hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) pp}\hlopt{$}\hlkwd{points3d}\hlstd{(m[, , i],} \hlkwc{col} \hlstd{= i} \hlopt{+} \hlnum{1}\hlstd{)))}
 \hlstd{pp}\hlopt{$}\hlkwd{points3d}\hlstd{(means,} \hlkwc{col} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{)}
 \end{alltt}
 \end{kframe}

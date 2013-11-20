@@ -31,3 +31,17 @@ crossover <- function(state){
   state[r,c] <- state[rev(r),c]
   state
 }
+
+##' Proposes a density weighted k=1 crossover.
+##' @param state population matrix of parents
+##' @return a new state
+##' @author Edward Roualdes
+##' @export
+crossover2 <- function(state){
+    h <- apply(state,1,dmix)
+    x1 <- sample.int(nrow(state), 1, prob=h/sum(h))
+    x2 <- sample.int(nrow(state), 1)
+    c <- seq_len(sample.int(ncol(state),1))
+    state[c(x1,x2),c] <- state[c(x2,x1),c]
+    state
+}

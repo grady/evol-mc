@@ -29,7 +29,7 @@ mutate <- function(ladder, rprop, dprop=NULL){
 ##' @rdname mutate
 ##' @export
 reproduce <- function(ladder){
-  mate <- metropolis(prod %c% ladder, crossover)
+  mate <- metropolis(prod %c% ladder, crossover2)
   swap <- metropolis(prod %c% ladder, exchange)
   swap %c% mate
 }

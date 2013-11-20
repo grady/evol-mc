@@ -61,7 +61,12 @@ Return new state.
  - [ ] population size
 
 * Report
+** Abstract
+Sampling from multi-modal target distributions proves difficult for basic MCMC methods.  Borrowing from the evolutionary based algorithms of optimization theory, Liang and Wong \alert{cite} introduced evolutionary Monte Carlo.  EMC, similar to parallel tempering, starts simulating multiple sequences from a heated target distribution to sample more globally from the support.  The temperature of each sequence is decreased as the algorithms progresses.  In each iteration of EMC indvidual sequences intelligently evolve by learning from each other.  A compartive simulations highlights the effectiveness of EMC over other sampling methods.
 ** Introduction
+Repeat abstract with extra citations.
+
+Mention and cite other methods; parallel tempering, multivariate metropolis
 ** Methods
 ** Results
 ** Discussion
