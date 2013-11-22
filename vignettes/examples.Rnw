@@ -29,7 +29,7 @@ Since the proposal distribution is symmetric, this is enough
 information to implement a Metropolis updater.
 
 <<univariate>>=
-fn <- function(x) sin(x)/x * (0<x) * (x<pi)
+fn <- function(x) log(sin(x)/x * (0<x) * (x<pi))
 propose <- function(x) x+runif(length(x),-1,1)
 updater <- metropolis(fn, propose)
 @ 
@@ -44,7 +44,7 @@ hist(chain,breaks="fd")
 
 Of course, multivariate distributions may also be sampled. 
 <<mvt,cache=TRUE>>=
-mvtarget <- function(x) prod(sin(prod(x))/x) * all(x>0,x<pi,prod(x)<pi)
+mvtarget <- function(x) log(prod(sin(prod(x))/x) * all(x>0,x<pi,prod(x)<pi))
 mvupdate <- metropolis(mvtarget, propose)
 chain2 <- iterate(10000,mvupdate, cbind(x=1,y=1))
 summary(chain2)
@@ -73,7 +73,7 @@ this is not strictly required.}
 mvt2 <- function(x) apply(x,1,mvtarget)
 mvup2 <- metropolis(mvt2, propose)
 init <- rbind(c(x=1,y=3),c(.1,.5),c(1,1))
-chain4 <- iterate(1000,mvup2,init)
+chain4 <- iterate(10000,mvup2,init)
 plot(chain4)
 @ 
 
@@ -166,7 +166,7 @@ We want to sample from a distribution with separated modes.  First we
 set up the target distribution function. This function should take a
 single individual and return the density of that individual.
 <<>>=
-f <- function(state) exp(sum(log(dnorm(state) + dnorm(state,10))))
+f <- function(state) log(dnorm(state)+dnorm(state,10))
 @ 
 Now we can set up the parallel tempering updater. Function temper is similar to
 metropolis, but you must also provide a list of temperatures. (It is
@@ -174,7 +174,6 @@ assumed that the number of individuals in the population will be the
 same as the number of temperature levels.)
 <<tempering,cache=TRUE>>=
 temps <- c(1,2,4,8,15)
-t <- length(temps)
 updater <- mutate(heat(f,temps),propose)
 init <- rbind(-3,0,5,10,15)
 gch <- iterate(10000,updater,init)
@@ -197,19 +196,19 @@ dmix <- function(x) target(x,means)
 ladder <- heat(dmix,temps)
 e <- seq(.2,3,length=5)
 runif3 <- function(x) x+runif(length(x),-e,e)
-runif4 <- function(x) x + rnorm(length(x), 0, 0.25*temps)
-evolve <- gibbs(reproduce(ladder), mutate(ladder,runif4), p=c(0.7, 0.3))
+evolve <- gibbs(reproduce(ladder), mutate(ladder,runif3), p=c(1,1))
 
-init <- matrix(runif(t*3),t,3)
-lineage <- iterate(1000, evolve, init,bar=1)
-
+init <- matrix(0,5,3)
+runif(100)
+lineage <- iterate(10000, evolve, init)
 @ 
+
 <<>>=
 plot(lineage)
 m <- aperm(simplify2array(lineage))
 library(scatterplot3d)
 pp <- scatterplot3d(means)
-invisible(sapply(t:1,function(i) pp$points3d(m[,,i],col=i+1)))
+invisible(sapply(5:1,function(i) pp$points3d(m[,,i],col=i+1)))
 pp$points3d(means,col=1,pch=19)
 
 pairs(m[,,1])
