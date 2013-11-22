@@ -192,15 +192,15 @@ The target function is a part of the evolMC package.
 
 <<runevol,cache=TRUE>>=
 means <- t(replicate(20, runif(3,-10,10)))
-dmix <- function(x) target(x,means)
+dmix <- function(x) log(target(x,means))
 ladder <- heat(dmix,temps)
 e <- seq(.2,3,length=5)
 runif3 <- function(x) x+runif(length(x),-e,e)
 evolve <- gibbs(reproduce(ladder), mutate(ladder,runif3), p=c(1,1))
 
 init <- matrix(0,5,3)
-runif(100)
-lineage <- iterate(10000, evolve, init)
+#invisible(runif(100))
+lineage <- iterate(10000, evolve, init) 
 @ 
 
 <<>>=

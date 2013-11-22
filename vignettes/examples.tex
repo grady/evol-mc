@@ -382,33 +382,14 @@ The target function is a part of the evolMC package.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{means} \hlkwb{<-} \hlkwd{t}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,} \hlkwd{runif}\hlstd{(}\hlnum{3}\hlstd{,} \hlopt{-}\hlnum{10}\hlstd{,} \hlnum{10}\hlstd{)))}
-\hlstd{dmix} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{target}\hlstd{(x, means)}
+\hlstd{dmix} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(}\hlkwd{target}\hlstd{(x, means))}
 \hlstd{ladder} \hlkwb{<-} \hlkwd{heat}\hlstd{(dmix, temps)}
 \hlstd{e} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{3}\hlstd{,} \hlkwc{length} \hlstd{=} \hlnum{5}\hlstd{)}
 \hlstd{runif3} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlstd{e, e)}
 \hlstd{evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif3),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
 
 \hlstd{init} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{3}\hlstd{)}
-\hlkwd{runif}\hlstd{(}\hlnum{100}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-##   [1] 0.520537 0.051885 0.391090 0.550450 0.416428 0.061312 0.359780
-##   [8] 0.974365 0.149928 0.503230 0.251273 0.621008 0.176322 0.652557
-##  [15] 0.904583 0.427867 0.544352 0.661578 0.950037 0.005459 0.362369
-##  [22] 0.810577 0.851012 0.141126 0.007155 0.411257 0.236126 0.197149
-##  [29] 0.941854 0.668238 0.177760 0.359667 0.331165 0.345900 0.454746
-##  [36] 0.331254 0.439420 0.690425 0.167946 0.771433 0.098579 0.976490
-##  [43] 0.214055 0.253464 0.615543 0.383458 0.889597 0.482701 0.303827
-##  [50] 0.746164 0.789685 0.066584 0.769259 0.740305 0.954066 0.381051
-##  [57] 0.950740 0.631242 0.071795 0.444387 0.578095 0.731366 0.759175
-##  [64] 0.574198 0.989554 0.002832 0.113100 0.929381 0.572161 0.540584
-##  [71] 0.199075 0.306391 0.537978 0.427963 0.858865 0.251045 0.472932
-##  [78] 0.861176 0.824208 0.121688 0.476930 0.733241 0.048647 0.243439
-##  [85] 0.840609 0.543595 0.355150 0.934983 0.924237 0.652280 0.484532
-##  [92] 0.394657 0.939312 0.285683 0.593501 0.557517 0.875150 0.578077
-##  [99] 0.815279 0.351948
-\end{verbatim}
-\begin{alltt}
+\hlcom{# invisible(runif(100))}
 \hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, evolve, init)}
 \end{alltt}
 \end{kframe}

@@ -1,0 +1,178 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+%\usepackage{fullpage}
+%\VignetteIndexEntry{evolMC demo} 
+%\VignetteDepends{evolMC,knitr} 
+%\VignetteEngine{knitr::knitr}
+
+
+
+
+\title{evolMC: a package for Monte-Carlo simulation}
+\author{W Burchett \and E Roualdes \and G Weyenberg}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+
+\section{Methods}
+\label{sec:methods}
+
+
+
+\section{Results}
+\label{sec:results}
+
+
+\subsection{Software}
+\label{sec:software}
+
+
+We present the R package evolMC, which is a framework for doing
+Markov-Chain Monte Carlo simulations. It includes explicit support for
+several MCMC algorithms, including Metropolis-Hastings, Gibbs,
+parallel tempering, and the evolutionary updating methods.
+
+The package aims to provide a general framework for constructing a
+chain, leaving it up to the user to provide the specific pieces
+specific to the problem. The user must first define a \emph{state
+object} and then implement a number of functions which act on this
+state object. In many traditional cases this state object can simply
+be a vector of reals, but any R object (e.g. a phylogenetic tree
+object defined by a 3rd-party package) can be used. The functions
+provided by evolMC will eventually produce a \emph{chain} object,
+which is simply an R list where each element is an instance of the
+state object.
+
+
+\section{Discussion}
+\label{sec:discussion}
+
+
+%%BIBLIOGRAPHY HERE
+
+\appendix
+
+\section{evolMC}
+\label{sec:evolmc}
+The evolMC package includes a vignette demonstrating a few basic use
+cases, with example code. Here we briefly discuss the architectural
+vision underlying the package and a few of the most important
+functions.
+
+evolMC was designed to be as flexible as possible, and hence it
+operates on a quite abstract level. It is written in a very functional
+style of programming; most of the important functions in evolMC accept
+functions as arguments and return new functions. An important goal was
+for the user to be free to use whatever object they wish to represent
+a realization of the random element in question. This departs from
+many existing R MCMC packages, which require vector- or
+array-type structures for the random elements in question.
+
+The main job of the user of evolMC is to define a few basic functions
+which can interact in specified ways with whatever object is selected
+to represent states of the chain. For example, the user will often
+need to implement a function which evaluates a log-densitiy for a
+given state. Using the routines provided by evolMC, one will then
+manipulate these functions, eventually producing a function which
+implements some desired MCMC algorithm.
+
+For example, the core function in evolMC is
+\texttt{iterate(n,f,x)}. This function is also among the least
+interesting, because it simply creates a list where the $k$-th element
+is $f^{k-1}(x)$. (Function exponentiation means iterated application
+here.) If the provided function f is ``carefully selected'' then the
+resulting chain might have ``desirable properties''. Of course, we are
+likely interested in the case where the ``desirable property'' in
+question is that the resulting list represents a sample from some target
+distribution.  Other functions in the package help one to construct
+``carefully selected'' functions {\tt f}.
+
+Perhaps the most basic MCMC algorithm is the Gibbs sampler. Suppose we
+want to sample from $[x,y]$. If we can sample from $[x|y]$ and
+$[y|x]$, then we can implement a Gibbs sampler. To do this one need
+only implement functions {\tt rxt} and {\tt ryx}, which do the
+respective sampling. These
+functions should accept the current state as their first argument, and
+return a new state object with the relavant changes made.
+
+Once one has these functions, the gibbs function can be used to
+produce a new updating function which will implement the Gibbs
+algorithm. The basic signature is {\tt gibbs(...)}. The ...  argument
+allows one to provide any number of updating functions; in our case we
+have two, {\tt rxt} and {\tt ryx}. The result of {\tt gibbs(rxy,ryx)}
+is a new ``carefully selected'' function with signature
+\texttt{function(state)} which acts as a Gibbs updater. If called
+repeatedly (e.g. by iterate) it will alternate between using {\tt rxy}
+and {\tt ryx} to update the state.\footnote{The sequential choice of
+  updating functions is the default mode of operation for the function
+  returned by {\tt gibbs}. It can also stochastically select an
+  updating function according to provided weights.}
+
+A second important algorithm is the Metropolis algorithm. The function
+{\tt metropolis} helps one to construct an updating function which
+implements Metropolis-Hastings. To use this function one must first implement:
+the log-density function for the target distribution ({\tt ln.d}); a proposal
+generator function ({\tt r.prop}); and (if required) a log-density function for the
+proposal generator ({\tt ln.d.prop}). A call {\tt metropolis(ln.d,
+  r.prop, ln.d.prop)} will return a ``carefully selected'' function
+(with signature {\tt function(state)}), which implements the
+Metropolis-Hastings scheme you have defined.
+
+These three basic building blocks can be used to construct a suprising
+number of more advanced MCMC algorithms, and indeed many of the more
+advanced agorithms provided by evolMC are constructed using only these pieces.
+\end{document}

@@ -25,4 +25,5 @@ compose <- function(...){
 ##' @rdname compose
 ##' @param g applied second
 ##' @param f applied first
+##' @export
 "%c%" <- function(g,f) function(x) g(f(x))
