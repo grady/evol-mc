@@ -38,7 +38,7 @@ crossover <- function(state){
 ##' @author Edward Roualdes
 ##' @export
 crossover2 <- function(state){
-    h <- apply(state,1,dmix)
+    h <- apply(state,1,function(x) exp(-1*dmix(x)))
     vec <- seq_len(nrow(state))
     x1 <- sample(vec, 1, prob=h/sum(h))
     x2 <- sample(vec[-x1], 1)
@@ -59,7 +59,7 @@ crossover2d <- function(old, new){
     ## find differing rows between old and new states
     idx <- which(apply(old==new,1,
                      function(x) all(as.logical(x))) == FALSE)
-    x <- apply(new, 1, dmix)
+    x <- apply(new,1,function(x) exp(-1*dmix(x)))
     px <- sum(x[idx])/sum(x)
     px
 }
