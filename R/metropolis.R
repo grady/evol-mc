@@ -19,13 +19,14 @@ metropolis <- function(target,rprop,dprop=NULL) {
   target <- match.fun(target)
   fn <- function(state,...){
     new <- rprop(state)
-    a <- target(new) / target(state)
-    if(is.function(dprop)) a <- a * dprop(state,new) / dprop(new,state)
-    i <- a < 1.0 # if false, replace; if true, keep?
+    ## a is -log(metropolis factor)
+    lna <- target(state) - target(new)
+    if(is.function(dprop)) lna <- lna - dprop(state,new) + dprop(new,state)
+    i <- lna > 0.0 # if false acceptance prob is >=1, so replace
     ## tryCatch(
-    i[i] <- runif(sum(i)) >= a[i] # keep with prob 1-a
+    i[i] <- rexp(sum(i)) <= lna[i] # if (i) keep w/prob 1-exp(-a) = pexp(a)
     ## error=browser())
-    state[!i] <- new[!i]
+    state[!i] <- new[!i] # if (i) keep else replace
     attr(state,'accept') <- !i
     state
   } 

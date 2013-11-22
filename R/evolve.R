@@ -10,7 +10,7 @@
 ##' @return a function(state) which applies fn(state[i,])^beta[i] to each row i of the state
 ##' @author Grady Weyenberg
 ##' @export
-heat <- function(fn,temps=1,beta=1/temps) function(state) apply(state,1,fn)^beta
+heat <- function(fn,temps=1,beta=1/temps) function(state) apply(state,1,fn)*beta
 
 ##' Evolution/Tempering functions
 ##' 
@@ -22,15 +22,15 @@ heat <- function(fn,temps=1,beta=1/temps) function(state) apply(state,1,fn)^beta
 ##' @export
 mutate <- function(ladder, rprop, dprop=NULL){
   update <- metropolis(ladder, rprop, dprop)
-  swap <- metropolis(prod %c% ladder, exchange)
+  swap <- metropolis(sum %c% ladder, exchange)
   swap %c% update
 }
 
 ##' @rdname mutate
 ##' @export
 reproduce <- function(ladder){
-  mate <- metropolis(prod %c% ladder, crossover)
-  swap <- metropolis(prod %c% ladder, exchange)
+  mate <- metropolis(sum %c% ladder, crossover)
+  swap <- metropolis(sum %c% ladder, exchange)
   swap %c% mate
 }
 

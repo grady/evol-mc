@@ -77,7 +77,7 @@ information to implement a Metropolis updater.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{fn} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{sin}\hlstd{(x)}\hlopt{/}\hlstd{x} \hlopt{*} \hlstd{(}\hlnum{0} \hlopt{<} \hlstd{x)} \hlopt{*} \hlstd{(x} \hlopt{<} \hlstd{pi)}
+\hlstd{fn} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(}\hlkwd{sin}\hlstd{(x)}\hlopt{/}\hlstd{x} \hlopt{*} \hlstd{(}\hlnum{0} \hlopt{<} \hlstd{x)} \hlopt{*} \hlstd{(x} \hlopt{<} \hlstd{pi))}
 \hlstd{propose} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{)}
 \hlstd{updater} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(fn, propose)}
 \end{alltt}
@@ -96,7 +96,7 @@ starting with some initial value.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##    mean      se    2.5%   97.5% 
-## 1.07272 0.73094 0.04298 2.62731
+## 1.07100 0.72155 0.03758 2.58650
 \end{verbatim}
 \begin{alltt}
 \hlkwd{hist}\hlstd{(chain,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
@@ -114,8 +114,8 @@ Of course, multivariate distributions may also be sampled.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{mvtarget} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{prod}\hlstd{(}\hlkwd{sin}\hlstd{(}\hlkwd{prod}\hlstd{(x))}\hlopt{/}\hlstd{x)} \hlopt{*} \hlkwd{all}\hlstd{(x} \hlopt{>} \hlnum{0}\hlstd{, x} \hlopt{<} \hlstd{pi,} \hlkwd{prod}\hlstd{(x)} \hlopt{<}
-    \hlstd{pi)}
+\hlstd{mvtarget} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(}\hlkwd{prod}\hlstd{(}\hlkwd{sin}\hlstd{(}\hlkwd{prod}\hlstd{(x))}\hlopt{/}\hlstd{x)} \hlopt{*} \hlkwd{all}\hlstd{(x} \hlopt{>} \hlnum{0}\hlstd{, x} \hlopt{<} \hlstd{pi,} \hlkwd{prod}\hlstd{(x)} \hlopt{<}
+    \hlstd{pi))}
 \hlstd{mvupdate} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(mvtarget, propose)}
 \hlstd{chain2} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, mvupdate,} \hlkwd{cbind}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{1}\hlstd{))}
 \hlkwd{summary}\hlstd{(chain2)}
@@ -123,10 +123,10 @@ Of course, multivariate distributions may also be sampled.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##            x      y
-## mean  1.2297 1.2202
-## se    0.7769 0.7650
-## 2.5%  0.1698 0.1793
-## 97.5% 2.9079 2.9159
+## mean  1.2738 1.2330
+## se    0.8105 0.7910
+## 2.5%  0.1703 0.1816
+## 97.5% 3.0076 2.9277
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain2)}
@@ -151,11 +151,15 @@ updater should update the entire population.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{chain3} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{100}\hlstd{, updater,} \hlkwc{init} \hlstd{=} \hlkwd{rbind}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{2.5}\hlstd{,} \hlnum{3.1}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: invalid arguments}}\begin{alltt}
 \hlkwd{plot}\hlstd{(chain3)}
 \end{alltt}
-\end{kframe}
-\includegraphics[width=\maxwidth]{figure/parallel} 
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: object 'chain3' not found}}\end{kframe}
 \end{knitrout}
 
 
@@ -172,7 +176,7 @@ this is not strictly required.}
 \hlstd{mvt2} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{apply}\hlstd{(x,} \hlnum{1}\hlstd{, mvtarget)}
 \hlstd{mvup2} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(mvt2, propose)}
 \hlstd{init} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{3}\hlstd{),} \hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.5}\hlstd{),} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
-\hlstd{chain4} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{1000}\hlstd{, mvup2, init)}
+\hlstd{chain4} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, mvup2, init)}
 \hlkwd{plot}\hlstd{(chain4)}
 \end{alltt}
 \end{kframe}
@@ -250,10 +254,10 @@ Gibbs updater.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##          mean    var
-## mean  27.4873 21.008
-## se     0.6583  4.757
-## 2.5%  26.1741 13.412
-## 97.5% 28.7715 31.638
+## mean  27.4908 21.995
+## se     0.6638  4.782
+## 2.5%  26.1954 14.250
+## 97.5% 28.8291 33.006
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -291,11 +295,11 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
 \end{alltt}
 \begin{verbatim}
 ## Discarding first 1000 states.
-##         mean    var  kappa
-## mean  27.370 13.513 0.5272
-## se     0.597  4.234 0.1425
-## 2.5%  26.157  7.008 0.2749
-## 97.5% 28.537 23.501 0.8418
+##          mean    var  kappa
+## mean  27.3842 12.734 0.5026
+## se     0.5751  3.550 0.2870
+## 2.5%  26.2059  7.048 0.0316
+## 97.5% 28.5032 20.956 0.9743
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain4)}
@@ -326,7 +330,7 @@ single individual and return the density of that individual.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{f} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{)} \hlkwd{exp}\hlstd{(}\hlkwd{sum}\hlstd{(}\hlkwd{log}\hlstd{(}\hlkwd{dnorm}\hlstd{(state)} \hlopt{+} \hlkwd{dnorm}\hlstd{(state,} \hlnum{10}\hlstd{))))}
+\hlstd{f} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{)} \hlkwd{log}\hlstd{(}\hlkwd{dnorm}\hlstd{(state)} \hlopt{+} \hlkwd{dnorm}\hlstd{(state,} \hlnum{10}\hlstd{))}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -385,13 +389,31 @@ The target function is a part of the evolMC package.
 \hlstd{evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif3),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
 
 \hlstd{init} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{3}\hlstd{)}
-\hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, evolve, init,} \hlkwc{bar} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlkwd{runif}\hlstd{(}\hlnum{100}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## ===========================================================================
+##   [1] 0.520537 0.051885 0.391090 0.550450 0.416428 0.061312 0.359780
+##   [8] 0.974365 0.149928 0.503230 0.251273 0.621008 0.176322 0.652557
+##  [15] 0.904583 0.427867 0.544352 0.661578 0.950037 0.005459 0.362369
+##  [22] 0.810577 0.851012 0.141126 0.007155 0.411257 0.236126 0.197149
+##  [29] 0.941854 0.668238 0.177760 0.359667 0.331165 0.345900 0.454746
+##  [36] 0.331254 0.439420 0.690425 0.167946 0.771433 0.098579 0.976490
+##  [43] 0.214055 0.253464 0.615543 0.383458 0.889597 0.482701 0.303827
+##  [50] 0.746164 0.789685 0.066584 0.769259 0.740305 0.954066 0.381051
+##  [57] 0.950740 0.631242 0.071795 0.444387 0.578095 0.731366 0.759175
+##  [64] 0.574198 0.989554 0.002832 0.113100 0.929381 0.572161 0.540584
+##  [71] 0.199075 0.306391 0.537978 0.427963 0.858865 0.251045 0.472932
+##  [78] 0.861176 0.824208 0.121688 0.476930 0.733241 0.048647 0.243439
+##  [85] 0.840609 0.543595 0.355150 0.934983 0.924237 0.652280 0.484532
+##  [92] 0.394657 0.939312 0.285683 0.593501 0.557517 0.875150 0.578077
+##  [99] 0.815279 0.351948
 \end{verbatim}
+\begin{alltt}
+\hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, evolve, init)}
+\end{alltt}
 \end{kframe}
 \end{knitrout}
+
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}

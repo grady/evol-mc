@@ -1,6 +1,6 @@
-* Implementation [1/5]
+* Implementation [5/5]
 ** DONE Target Distribution					      :grady:
-** TODO Design sampler 							:all:
+** DONE Design sampler							:all:
 *** Individual : vector(k)
 An individual is an element of the state space. Assume they are
 representable by a size `k` vector.
@@ -45,11 +45,11 @@ Do a mutation or a crossover.
 Do an exchange.
 Return new state.
 
-** TODO Multivariate Metropolis
-** TODO Evolutionary MC Sampler
-** TODO Parallel Tempering
+** DONE Multivariate Metropolis
+** DONE Evolutionary MC Sampler
+** DONE Parallel Tempering
 * Simulations
-** Metropolis [0/2]
+** Simple Metropolis [0/2]
  - [ ] variance
  - [ ] population size
 ** Evolutionary MC [0/3]
