@@ -61,7 +61,42 @@ Return new state.
  - [ ] population size
 
 * Report
+** Abstract
+
+Sampling from multi-modal target distributions proves difficult for basic MCMC methods.  Borrowing from the evolutionary based algorithms of optimization theory, Liang and Wong \alert{cite} introduced evolutionary Monte Carlo.  EMC begins with parallel tempering and then adds to it a step in which sequences intelligently evolve by learning from each other.  A comparative simulation highlights the effectiveness of EMC over other sampling methods.
+
 ** Introduction
+Population based MCMC methods are becoming increasingly common in applied statistics.  Parallel tempering, for instance, starts by simulating multiple sequences from a heated target distribution to encourage a more thorough global search of the support.  Liang and Wong \alert{cite} introduced evolutionary MC that builds upon, and generalizes, parallel tempering by blending with it theory from evolutionary aglorithms.  Thus, EMC is a population based Monte Carlo method that intelligently evolves at each iteration.
+
+The discussion of population based Monte Carlo methods necessarily begins by introducting some terminology.  We wish to sample from a distribution
+
+\begin{equation*}
+
+f(x) \propto \exp\{ -H(x)/t \}
+
+\end{equation*}
+
+where $t \in \mathbb{R}$ is called the temperature and $H(x)$, called the fitness function, corresponds to the negative log-density of $x$.  Consider a population $\mathbf{x}$ consisting of $N$ individuals $x_i, i = 1, \ldots, N$ where $x_i \in \mathbb{R}^d$.  Each individual,  associated with a unique temperature $\mathbf{t} =  \{t_1, \ldots, t_N \}$, is sampled from the distribution $f_i$ defined to be
+
+\begin{equation*}
+
+f_i(x) = \frac{1}{Z(t_i)} \exp\{ -H(x)/t_i \}
+
+\end{equation*}
+
+and $Z(t_i) := \sum_{x_i} \exp\{ -H(x_i)/t_i \}.  The temperatures are said to form a ladder such that $t_1 > t_2 > \ldots > t_N$.  The Boltzman distribution of the population $\mathbf{x}$ is formed by taking the product of the individual distributions $f_i$.  
+
+\begin{equation*}
+
+f(\mathbb{x}) = \frac{1}{Z(\mathbb{t})} \exp\{ -\sum_{i=1}^N H(x_i) / t_i \}
+
+\end{equation*}
+
+with $Z(\mathbb{t}) := \prod_{i=1}^N Z(t_i)$.  Iterations of the EMC algorithm consist of three operations: mutation, crossover, and exchange.  
+
+The most basic mutation operation simply adds noise to a randomly selected individual from the population and with some probability $\min(1,r_m)$ this variation is carried into the next generation.  The crossover operator consists of randomly selecting two individuals who produce offspring that are accepted with probability $\min(1, r_c)$.  The exchange step proposes a switch of two randomly selected individuals without switching their associated temperatures.  
+
+Section two describes the EMC algorithm in greater detail.  Secton three provides a comparison between EMC, parallel tempering, and the multivariate Metropolis updater on a twenty part trivariate normal distribution.  Sections four and five discuss the results of the simulation and provide a conclusion. 
 ** Methods
 ** Results
 

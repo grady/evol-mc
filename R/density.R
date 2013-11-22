@@ -19,5 +19,5 @@ target <- function(x,means){
     exp(-(const + d)/2)
   }
   val <- apply(means,1,df)
-  if (is.matrix(val)) rowMeans(val) else mean(val)
+  if (is.matrix(val)) log(rowMeans(val)) else log(mean(val))
 }
