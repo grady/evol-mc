@@ -4,7 +4,10 @@
 *.log
 vignettes/figure
 *.aux
+*.bbl
+*.blg
 vignettes/cache
+
 .Rhistory
 *-Ex.R
 

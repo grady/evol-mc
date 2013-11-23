@@ -48,10 +48,16 @@
 \newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
 
 \usepackage{alltt}
+\usepackage{amssymb}
+\usepackage{natbib}
 %\usepackage{fullpage}
 %\VignetteIndexEntry{evolMC demo} 
 %\VignetteDepends{evolMC,knitr} 
 %\VignetteEngine{knitr::knitr}
+\newcommand{\grady}[1]{\marginpar{#1--Grady}}
+\newcommand{\bx}{\mathbf x}
+\newcommand{\bt}{\mathbf t}
+\newcommand{\X}{\mathcal X}
 
 
 
@@ -65,17 +71,89 @@
 
 \maketitle
 
-\section{Introduction}
+
+\begin{abstract}
+  Sampling from multi-modal target distributions proves difficult for
+  basic MCMC methods.  Borrowing from the evolutionary based
+  algorithms of optimization theory, \cite{liang2000evolutionary}
+  introduced evolutionary Monte Carlo (EMC).  EMC begins with parallel
+  tempering and then adds to it a step in which sequences
+  intelligently evolve by learning from each other.  A comparative
+  simulation highlights the effectiveness of EMC over other sampling
+  methods.
+\end{abstract}
+
+%%\section{Introduction}
+\vspace{1cm}
 \label{sec:introduction}
 
+Population based MCMC methods are becoming increasingly common in
+applied statistics.  Parallel tempering, for instance, starts by
+simulating multiple sequences from a heated target distribution to
+encourage a more thorough global search of the support space.
+\cite{liang2000evolutionary} introduced evolutionary MC that builds
+upon, and generalizes, parallel tempering by blending with it theory
+from evolutionary aglorithms. Evolutionary Monte Carlo (EMC) is a
+population based Monte Carlo method that intelligently evolves at each
+iteration.
+
+The discussion of population based Monte Carlo methods necessarily
+begins by introducting some terminology.  We wish to sample from a
+distribution \[f(x|t) \propto \exp\{ -H(x)/t \}\] where $t\ge 1$ is
+called the \emph{temperature} and $H(x)$, called the \emph{fitness
+  function}, corresponds to the negative log-density of $x$, up to a
+constant. A \emph{population} $\mathbf{x}$ consists of $N$
+\emph{individuals} $x_i$, $i = 1, \ldots, N$, and an associated set of
+temperatures $\bt = (t_1,\ldots,t_N)$. ($x_i \in \mathbb{R}^d$ and the
+$t_i$ are in decending order.) Each
+individual $x_i$ is independently sampled from the distribution
+$f_i(x_i) \propto f(x_i|t_i)$.  For any such distribution, the
+\emph{partition function} $Z(t)= \int_\X f(x|t) dx$ is the inverse of
+the normalizing constant. \grady{Citation?  Basic fact?}
+
+
+The \emph{Boltzman distribution} of the population $\bx$ is the
+product of the individual distributions, $f(\bx) \propto \exp \{ -\sum_{i=1}^N
+H(x_i)/ t_i \}$, with $Z(\bt) := \prod_{i=1}^N Z(t_i)$ as the inverse
+of the normalizing constant.  Iterations of the EMC algorithm consist
+of three operations: mutation, crossover, and exchange. Each type of
+operation makes a specific type of modification to the current
+population, and the change is carried forward to the next generation
+with a probability governed by a Metropolis-type rule.
+
+In general terms, a mutation operation adds noise to the current
+population. This can be analogous to a basic random walk type
+proposal, but more elaborate methods have been
+proposed.\grady{citation} A crossover operator consists of
+randomly selecting two individuals and generating replacement
+individuals by somehow mixing the parent values, analogous to the
+Chromosomal crossovers that sometimes occur during Mieosis.  An
+exchange step proposes a switch of two randomly selected individuals
+without switching their associated temperatures.
+
+
+In the remainder of this paper we compare the performance of the EMC
+algorithm to parallel tempering and a na\"ive Metropolis sampler in
+the context of a 3 dimensional distribution with 20 modes.  Section
+two describes in greater detail the simulation setup.  While results
+of the simulation are presented and discussed in sections
+\ref{sec:results} and \ref{sec:discussion}.
+
+\setcounter{section}{1}
 \section{Methods}
 \label{sec:methods}
+The target distribution for our study is a 20-part mixture of
+trivariate Gaussian distributions. Each part of the mixture is
+$\mathcal{N}_3(\mu_i, 0.1I_3)$, and each vector $\mu_i$ is located
+uniformly in $[-10,10]\times[-10,10]\times[-10,10].$ This distribution
+possesses numerous modes that are separated by relatively large
+regions of low probability, making it challenging for a basic
+Metropolis sampler to mix between the modes.
 
-
+This section should describe the simulations we did.
 
 \section{Results}
 \label{sec:results}
-
 
 \subsection{Software}
 \label{sec:software}
@@ -97,12 +175,17 @@ provided by evolMC will eventually produce a \emph{chain} object,
 which is simply an R list where each element is an instance of the
 state object.
 
+\subsection{Simulations}
+\label{sec:simulations}
+
 
 \section{Discussion}
 \label{sec:discussion}
 
 
 %%BIBLIOGRAPHY HERE
+\bibliography{refs}
+\bibliographystyle{named}
 
 \appendix
 
@@ -130,16 +213,16 @@ given state. Using the routines provided by evolMC, one will then
 manipulate these functions, eventually producing a function which
 implements some desired MCMC algorithm.
 
-For example, the core function in evolMC is
+The core function in evolMC is
 \texttt{iterate(n,f,x)}. This function is also among the least
 interesting, because it simply creates a list where the $k$-th element
 is $f^{k-1}(x)$. (Function exponentiation means iterated application
-here.) If the provided function f is ``carefully selected'' then the
+here.) If the provided function {\tt f} is ``carefully selected'' then the
 resulting chain might have ``desirable properties''. Of course, we are
-likely interested in the case where the ``desirable property'' in
-question is that the resulting list represents a sample from some target
-distribution.  Other functions in the package help one to construct
-``carefully selected'' functions {\tt f}.
+likely interested in the case where the desirable property in
+question is that the resulting list represents a sample from some
+target distribution. Most other functions in the package exist to help
+one in constructing a function {\tt f} with specific desirable properties.
 
 Perhaps the most basic MCMC algorithm is the Gibbs sampler. Suppose we
 want to sample from $[x,y]$. If we can sample from $[x|y]$ and
