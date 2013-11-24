@@ -1,6 +1,7 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage{amssymb}
 \usepackage{natbib}
+\usepackage{algorithm,algpseudocode}
 %\usepackage{fullpage}
 %\VignetteIndexEntry{evolMC demo} 
 %\VignetteDepends{evolMC,knitr} 
@@ -9,6 +10,8 @@
 \newcommand{\bx}{\mathbf x}
 \newcommand{\bt}{\mathbf t}
 \newcommand{\X}{\mathcal X}
+\newcommand{\U}{\mathcal U}
+\newcommand{\Exp}{\mathcal E}
 
 <<preamble,echo=FALSE,results='hide'>>=
 library(knitr)
@@ -89,9 +92,9 @@ without switching their associated temperatures.
 In the remainder of this paper we compare the performance of the EMC
 algorithm to parallel tempering and a na\"ive Metropolis sampler in
 the context of a 3 dimensional distribution with 20 modes.  Section
-two describes in greater detail the simulation setup.  While results
-of the simulation are presented and discussed in sections
-\ref{sec:results} and \ref{sec:discussion}.
+two describes in greater detail the algorithms used and the simulation
+setup.  While results of the simulation are presented and discussed in
+sections \ref{sec:results} and \ref{sec:discussion}.
 
 \setcounter{section}{1}
 \section{Methods}
@@ -103,6 +106,55 @@ uniformly in $[-10,10]\times[-10,10]\times[-10,10].$ This distribution
 possesses numerous modes that are separated by relatively large
 regions of low probability, making it challenging for a basic
 Metropolis sampler to mix between the modes.
+
+\subsection{Algorithms}
+\label{sec:algorithms}
+
+We implemented a simple version of the crossover, where the parents
+are selected with weights based on their fitness, Algorithm
+\ref{alg:crossover}. The mutate step uses a simple random-walk
+approach.
+
+
+\begin{algorithm}
+  \caption{The fitness-weighted crossover.}
+  \label{alg:crossover}
+  \begin{algorithmic}
+    \State Copy the current population to $x$.
+    \ForAll {individuals $x_i$} 
+    \State $p_i \gets \exp(-H(x_i))$
+    \EndFor
+    \State Select $k$ uniformly from $\{1\colon d\}.$
+    \State Select $i$ from $\{1\colon N\}$ with weights $\{p_i\}$
+    \State Select $j$ uniformly from $\{1\colon N\} / \{i\}.$ 
+    \State Swap elements $k\colon d$ of individuals $i$ and $j$ from $x$.
+    \If {$\Exp(1) < -H(x_i)/t_i +H(x_j)/t_j+\cdots$}
+    \State Accept $x$ as new population.
+    \Else 
+    \State Keep old population.
+    \EndIf
+  \end{algorithmic}
+\end{algorithm}
+
+%% \begin{algorithm}
+%%   \caption{Exchange.}
+%%   \begin{algorithmic}
+%%     \State $x\gets$ Current population.
+%%     \State $i\gets \U(\{1:N\})$ 
+%%     \State $j\gets \U(\{1:N\} / \{i\})$ 
+%%     \State Swap individuals $i,j$ of $x$.
+%%     \State $a \gets -H(x_i)/t_i +H(x_j)/t_j$
+%%     \If {$\Exp(1) < a$}
+%%     \State Accept $x$ as new population.
+%%     \Else 
+%%     \State Keep old population.
+%%     \EndIf
+%%   \end{algorithmic}
+%% \end{algorithm}
+
+\subsection{Simulations}
+\label{sec:methods-simulations}
+
 
 This section should describe the simulations we did.
 
@@ -132,10 +184,11 @@ state object.
 \subsection{Simulations}
 \label{sec:simulations}
 
+Verbiage
 
 \section{Discussion}
 \label{sec:discussion}
-
+The winner is...P
 
 %%BIBLIOGRAPHY HERE
 \bibliography{refs}
