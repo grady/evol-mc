@@ -2,6 +2,7 @@
 \usepackage{amssymb}
 \usepackage{natbib}
 \usepackage{algorithm,algpseudocode}
+\usepackage{color}
 %\usepackage{fullpage}
 %\VignetteIndexEntry{Simulation Report} 
 %\VignetteDepends{evolMC,knitr} 
@@ -12,7 +13,7 @@
 \newcommand{\X}{\mathcal X}
 \newcommand{\U}{\mathcal U}
 \newcommand{\Exp}{\mathcal E}
-
+\newcommand{\needcite}{{\color{red}[citation needed]}}
 <<preamble,echo=FALSE,results='hide'>>=
 library(knitr)
 options(width=75)
@@ -52,36 +53,36 @@ encourage a more thorough global search of the support space.
 upon, and generalizes, parallel tempering by blending with it theory
 from evolutionary aglorithms. Evolutionary Monte Carlo (EMC) is a
 population based Monte Carlo method that intelligently evolves at each
-iteration.
+iteration. \needcite
 
 The discussion of population based Monte Carlo methods necessarily
-begins by introducting some terminology.  We wish to sample from a
-distribution \[f(x|t) \propto \exp\{ -H(x)/t \}\] where $t\ge 1$ is
-called the \emph{temperature} and $H(x)$, called the \emph{fitness
-  function}, corresponds to the negative log-density of $x$, up to a
-constant. A \emph{population} $\mathbf{x}$ consists of $N$
-\emph{individuals} $x_i$, $i = 1, \ldots, N$, and an associated set of
-temperatures $\bt = (t_1,\ldots,t_N)$. ($x_i \in \mathbb{R}^d$ and the
-$t_i$ are in decending order.) Each
-individual $x_i$ is independently sampled from the distribution
-$f_i(x_i) \propto f(x_i|t_i)$.  For any such distribution, the
-\emph{partition function} $Z(t)= \int_\X f(x|t) dx$ is the inverse of
-the normalizing constant. \grady{Citation?  Basic fact?}
-
-
-The \emph{Boltzman distribution} of the population $\bx$ is the
+begins by introducting some terminology. The following recounts the
+terminology given in Chapter 5 of \cite{liang2011advanced}: We wish to
+sample from a distribution \[f(x|t) \propto \exp\{ -H(x)/t \}\] where
+$t\ge 1$ is called the \emph{temperature} and $H(x)$, called the
+\emph{fitness function}, corresponds to the negative log-density of
+$x$, up to a constant. A \emph{population} $\mathbf{x}$ consists of
+$N$ \emph{individuals} $x_i$, $i = 1, \ldots, N$, and we also define
+an associated set of temperatures $\bt = (t_1,\ldots,t_N)$. ($x_i \in
+\mathbb{R}^d$ and the $t_i$ are in decending order.) Each individual
+$x_i$ is independently sampled from the distribution $f_i(x_i) \propto
+f(x_i|t_i)$.  For any such distribution, the \emph{partition function}
+$Z(t)= \int_\X f(x|t) dx$ is the inverse of the normalizing
+constant. The \emph{Boltzman distribution} of the population $\bx$ is the
 product of the individual distributions, $f(\bx) \propto \exp \{ -\sum_{i=1}^N
 H(x_i)/ t_i \}$, with $Z(\bt) := \prod_{i=1}^N Z(t_i)$ as the inverse
-of the normalizing constant.  Iterations of the EMC algorithm consist
-of three operations: mutation, crossover, and exchange. Each type of
-operation makes a specific type of modification to the current
-population, and the change is carried forward to the next generation
-with a probability governed by a Metropolis-type rule.
+of the normalizing constant. 
+
+Iterations of the EMC algorithm consist of three operations: mutation,
+crossover, and exchange. Each type of operation makes a specific type
+of modification to the current population, and the change is carried
+forward to the next generation with a probability governed by a
+Metropolis-type rule.
 
 In general terms, a mutation operation adds noise to the current
 population. This can be analogous to a basic random walk type
 proposal, but more elaborate methods have been
-proposed.\grady{citation} A crossover operator consists of
+proposed. A crossover operator consists of
 randomly selecting two individuals and generating replacement
 individuals by somehow mixing the parent values, analogous to the
 Chromosomal crossovers that sometimes occur during Mieosis.  An
@@ -234,7 +235,7 @@ one in constructing a function {\tt f} with specific desirable properties.
 Perhaps the most basic MCMC algorithm is the Gibbs sampler. Suppose we
 want to sample from $[x,y]$. If we can sample from $[x|y]$ and
 $[y|x]$, then we can implement a Gibbs sampler. To do this one need
-only implement functions {\tt rxt} and {\tt ryx}, which do the
+only implement functions {\tt rxy} and {\tt ryx}, which do the
 respective sampling. These
 functions should accept the current state as their first argument, and
 return a new state object with the relavant changes made.
@@ -243,7 +244,7 @@ Once one has these functions, the gibbs function can be used to
 produce a new updating function which will implement the Gibbs
 algorithm. The basic signature is {\tt gibbs(...)}. The ...  argument
 allows one to provide any number of updating functions; in our case we
-have two, {\tt rxt} and {\tt ryx}. The result of {\tt gibbs(rxy,ryx)}
+have two, {\tt rxy} and {\tt ryx}. The result of {\tt gibbs(rxy,ryx)}
 is a new ``carefully selected'' function with signature
 \texttt{function(state)} which acts as a Gibbs updater. If called
 repeatedly (e.g. by iterate) it will alternate between using {\tt rxy}
