@@ -52,6 +52,7 @@
 \usepackage{natbib}
 \usepackage{algorithm,algpseudocode}
 \usepackage{color}
+\usepackage{hyperref}
 %\usepackage{fullpage}
 %\VignetteIndexEntry{Simulation Report} 
 %\VignetteDepends{evolMC,knitr} 
@@ -97,12 +98,12 @@ simulating multiple sequences from a heated target distribution to
 encourage a more thorough global search of the support space.
 \cite{liang2000evolutionary} introduced evolutionary MC that builds
 upon, and generalizes, parallel tempering by blending with it theory
-from evolutionary aglorithms. Evolutionary Monte Carlo (EMC) is a
+from evolutionary algorithms. Evolutionary Monte Carlo (EMC) is a
 population based Monte Carlo method that intelligently evolves at each
 iteration. \needcite
 
 The discussion of population based Monte Carlo methods necessarily
-begins by introducting some terminology. The following recounts the
+begins by introducing some terminology. The following recounts the
 terminology given in Chapter 5 of \cite{liang2011advanced}: We wish to
 sample from a distribution \[f(x|t) \propto \exp\{ -H(x)/t \}\] where
 $t\ge 1$ is called the \emph{temperature} and $H(x)$, called the
@@ -110,11 +111,11 @@ $t\ge 1$ is called the \emph{temperature} and $H(x)$, called the
 $x$, up to a constant. A \emph{population} $\mathbf{x}$ consists of
 $N$ \emph{individuals} $x_i$, $i = 1, \ldots, N$, and we also define
 an associated set of temperatures $\bt = (t_1,\ldots,t_N)$. ($x_i \in
-\mathbb{R}^d$ and the $t_i$ are in decending order.) Each individual
+\mathbb{R}^d$ and the $t_i$ are in descending order.) Each individual
 $x_i$ is independently sampled from the distribution $f_i(x_i) \propto
 f(x_i|t_i)$.  For any such distribution, the \emph{partition function}
 $Z(t)= \int_\X f(x|t) dx$ is the inverse of the normalizing
-constant. The \emph{Boltzman distribution} of the population $\bx$ is the
+constant. The \emph{Boltzmann distribution} of the population $\bx$ is the
 product of the individual distributions, $f(\bx) \propto \exp \{ -\sum_{i=1}^N
 H(x_i)/ t_i \}$, with $Z(\bt) := \prod_{i=1}^N Z(t_i)$ as the inverse
 of the normalizing constant. 
@@ -131,7 +132,7 @@ proposal, but more elaborate methods have been
 proposed. A crossover operator consists of
 randomly selecting two individuals and generating replacement
 individuals by somehow mixing the parent values, analogous to the
-Chromosomal crossovers that sometimes occur during Mieosis.  An
+Chromosomal crossovers that sometimes occur during Meiosis.  An
 exchange step proposes a switch of two randomly selected individuals
 without switching their associated temperatures.
 
@@ -213,9 +214,11 @@ This section should describe the simulations we did.
 
 
 We present the R package evolMC, which is a framework for doing
-Markov-Chain Monte Carlo simulations. It includes explicit support for
-several MCMC algorithms, including Metropolis-Hastings, Gibbs,
-parallel tempering, and the evolutionary updating methods.
+Markov-Chain Monte Carlo simulations. The evolMC package includes
+implementations of several MCMC algorithms, including
+Metropolis-Hastings, Gibbs, parallel tempering, and the evolutionary
+updating methods. The package is available from
+\url{http://github.com/grady/evol-mc/}.
 
 The package aims to provide a general framework for constructing a
 chain, leaving it up to the user to provide the specific pieces
@@ -262,7 +265,7 @@ array-type structures for the random elements in question.
 The main job of the user of evolMC is to define a few basic functions
 which can interact in specified ways with whatever object is selected
 to represent states of the chain. For example, the user will often
-need to implement a function which evaluates a log-densitiy for a
+need to implement a function which evaluates a log-density for a
 given state. Using the routines provided by evolMC, one will then
 manipulate these functions, eventually producing a function which
 implements some desired MCMC algorithm.
@@ -309,7 +312,7 @@ proposal generator ({\tt ln.d.prop}). A call {\tt metropolis(ln.d,
 (with signature {\tt function(state)}), which implements the
 Metropolis-Hastings scheme you have defined.
 
-These three basic building blocks can be used to construct a suprising
+These three basic building blocks can be used to construct a surprising
 number of more advanced MCMC algorithms, and indeed many of the more
-advanced agorithms provided by evolMC are constructed using only these pieces.
+advanced algorithms provided by evolMC are constructed using only these pieces.
 \end{document}
