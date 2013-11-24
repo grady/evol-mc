@@ -1,54 +1,6 @@
-* Implementation [5/5]
-** DONE Target Distribution					      :grady:
-** DONE Design sampler							:all:
-*** Individual : vector(k)
-An individual is an element of the state space. Assume they are
-representable by a size `k` vector.
-*** Population : matrix(n,k)
-A collection of `n` individuals. This is the object to be updated.
-*** Chain : array(n,k,m)
-A collection of populations, representing the evolution of the Markov chain.
-*** config.object
-An object containing 3 functions and the mutation probability `q`:
- - mutate fn
- - crossover fn 
- - exchange fn
- - mutation probability 
-
-The constructor needs to be provided with target density,
-temperatures, sigmas, mutation probability.
-
-**** jointify: function
-Use the "target" distribution `f` and temperature ladder to construct
-a map: population -> R^n
-g(population) = (f1(x1), f2(x2), ..., fn(xn))
-The joint density is prod(g(p))
-**** mutate: function
-Given a population `p` and list of covariances `sigma` for each
-individual, propose a new population.
-
-foreach i in nrow(p):
-  let  p*[i] = p[i] + noise(covariance[1])
-next.p = metropolis(p,p*,f.tilde)
-**** metropolis: function
-Usual metropolis hastings update procedure.
-**** crossover: function
-given a population, select two individuals and do a "crossover"
-operation. Update population with a metropolis-type check.
-
-**** exchange: function
-Possibly exchange the state of two individuals in the population.
-
-*** update: function
-Given a population:
-Do a mutation or a crossover.
-Do an exchange.
-Return new state.
-
-** DONE Multivariate Metropolis
-** DONE Evolutionary MC Sampler
-** DONE Parallel Tempering
-* Simulations
+* DONE Implementation
+* TODO Simulations
+We need to come up with a modest set of informative and interesting simulations.
 ** Simple Metropolis [0/2]
  - [ ] variance
  - [ ] population size
@@ -61,11 +13,8 @@ Return new state.
  - [ ] population size
 
 * Report
-** Methods
+** DONE Introduction 
+** TODO Methods
 ** Results
-
-
-
 ** Discussion
-
 * Presentation
