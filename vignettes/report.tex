@@ -57,6 +57,12 @@
 %\VignetteIndexEntry{Simulation Report} 
 %\VignetteDepends{evolMC,knitr} 
 %\VignetteEngine{knitr::knitr}
+
+\usepackage[nolists]{endfloat}
+\renewcommand{\efloatseparator}{}
+\DeclareDelayedFloat{algorithm}[aaa]{Algorithms}
+
+
 \newcommand{\grady}[1]{\marginpar{#1--Grady}}
 \newcommand{\bx}{\mathbf x}
 \newcommand{\bt}{\mathbf t}
@@ -64,6 +70,10 @@
 \newcommand{\U}{\mathcal U}
 \newcommand{\Exp}{\mathcal E}
 \newcommand{\needcite}{{\color{red}[citation needed]}}
+\newcommand{\ret}{{\bf return} }
+\algdef{SE}[WP]{Wp}{EndWp}[1]{{\bf with prob}\ #1\ }{\algorithmicend}%
+\algdef{Ce}[OW]{WP}{Ow}{EndWp}{{\bf otherwise}\ }%
+
 
 
 
@@ -158,51 +168,93 @@ Metropolis sampler to mix between the modes.
 \subsection{Algorithms}
 \label{sec:algorithms}
 
-We implemented a simple version of the crossover, where the parents
-are selected with weights based on their fitness, Algorithm
-\ref{alg:crossover}. The mutate step uses a simple random-walk
-approach.
+The EMC algorithm we have implemented is described briefly in
+Algorithms \ref{alg:emc}--\ref{alg:exchange}.  The mutate step uses a
+simple random-walk approach, where the variance of the noise
+distribution depends on the temperature of the individual being
+modified.  The crossover we used is a simple single-splice one, where
+the parents are selected with weights based on their fitness.
 
 
 \begin{algorithm}
-  \caption{The fitness-weighted crossover.}
-  \label{alg:crossover}
+  \caption{Evolutionary Monte Carlo}
+  \label{alg:emc}
+  \footnotesize
   \begin{algorithmic}
-    \State Copy the current population to $x$.
-    \ForAll {individuals $x_i$} 
-    \State $p_i \gets \exp(-H(x_i))$
-    \EndFor
-    \State Select $k$ uniformly from $\{1\colon d\}.$
-    \State Select $i$ from $\{1\colon N\}$ with weights $\{p_\cdot\}$
-    \State Select $j$ uniformly from $\{1\colon N\} / \{i\}.$ 
-    \State In $x$, swap elements $k\colon d$ of individuals $i$ and $j$.
-    \If {$\Exp(1) < -H(x_i)/t_i +H(x_j)/t_j+\cdots$}
-    \State Accept $x$ as new population.
-    \Else 
-    \State Keep old population.
-    \EndIf
+    \Procedure{EMC}{}
+    \Wp{$p_m$} \Comment{$p_m$ is the \emph{mutation probability}.}
+    \State \Call{Mutate}{}
+    \Ow 
+    \State \Call{Crossover}{}
+    \EndWp
+    \State  \Call{Exchange}{}
+    \EndProcedure
   \end{algorithmic}
 \end{algorithm}
 
-%% \begin{algorithm}
-%%   \caption{Exchange.}
-%%   \begin{algorithmic}
-%%     \State $x\gets$ Current population.
-%%     \State $i\gets \U(\{1:N\})$ 
-%%     \State $j\gets \U(\{1:N\} / \{i\})$ 
-%%     \State Swap individuals $i,j$ of $x$.
-%%     \State $a \gets -H(x_i)/t_i +H(x_j)/t_j$
-%%     \If {$\Exp(1) < a$}
-%%     \State Accept $x$ as new population.
-%%     \Else 
-%%     \State Keep old population.
-%%     \EndIf
-%%   \end{algorithmic}
-%% \end{algorithm}
+
+\begin{algorithm}
+  \caption{A random-walk \emph{mutation}.}
+  \label{alg:mutate}
+  \footnotesize
+  \begin{algorithmic}
+    \Procedure{Mutate}{}
+    \State Copy the current population to $x$.
+    \ForAll{individuals in $x$}
+    \State Add noise with variance proportional to $t_i$ to individual $x_i$.
+    \EndFor
+    \Wp{$\min\{1,\exp(\cdots)\}$}
+    \State Set the current population to $x$.
+    \EndWp
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{The fitness-weighted \emph{crossover}.}
+  \label{alg:crossover}
+  \footnotesize
+  \begin{algorithmic}
+    \Procedure{Crossover}{}
+    \State Copy the current population to $x$.
+    \ForAll {individuals in $x$} 
+    \State $w_i \gets \exp(-H(x_i))$
+    \EndFor
+    \State Select $k$ uniformly from $\{1\colon d\}.$
+    \State Select $i$ from $\{1\colon N\}$ with weights proportional
+    to $\{w_\cdot\}$.
+    \State Select $j$ uniformly from $\{1\colon N\} \backslash \{i\}.$ 
+    \State In $x$, swap elements $k\colon d$ of individuals $i$ and $j$.
+    \Wp {$\min\{1, \exp(-H(x_i)/t_i +H(x_j)/t_j+\cdots)\}$}
+    \State  Set the  current population to $x$.
+    \EndWp
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{The \emph{exchange} attempts to swap individuals between
+    neighboring temperature states.}
+  \label{alg:exchange}
+  \footnotesize
+  \begin{algorithmic}
+    \Procedure{Exchange}{}
+    \State Copy the current population to $x$.
+    \State Select $i$ uniformly from $\{1\colon N\}$. 
+    \State Select $j$ uniformly from $\{i\pm 1\}\cap\{1\colon N\}$.
+    \State Swap individuals $i,j$ of $x$.
+    \Wp{$\min\{1,\exp(-H(x_i)/t_i +H(x_j)/t_j)\}$}
+    \State Set the current population to $x$.
+    \EndWp
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
 
 \subsection{Simulations}
 \label{sec:methods-simulations}
 
+At each step of the chain the EMC algorithm either does a mutate or
+crossover step. The 
 
 This section should describe the simulations we did.
 

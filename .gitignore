@@ -1,12 +1,16 @@
 .#*
 *.o
+*.out
 *.gz
 *.log
-vignettes/figure
 *.aux
 *.bbl
 *.blg
+*.fff
+*.ttt
+*.aaa
 vignettes/cache
+vignettes/figure
 
 .Rhistory
 *-Ex.R
