@@ -53,13 +53,13 @@ Return new state.
  - [ ] variance
  - [ ] population size
 ** Evolutionary MC [0/3]
- - [ ] Mutation rate
- - [ ] mutation scale
- - [ ] population size
+ - [ ] Crossover / Mutation rate: (0.5,0.5), (0.75, 0.25), (.90, .10)
+ - [ ] mutation scale: (variance of additive random noise): runif3, runif4
+ - [ ] population size (number of temps): 2, 5, 10
+ - [ ] iterations: 5k, 10k, 50k, 100k
 ** Parallel tempering [0/2]
- - [ ] temperatures
- - [ ] population size
-
+ - [ ] iterations: 5k, 10k, 50k, 100k
+ - [ ] population size: 2, 5, 10
 * Report
 ** Methods
 ** Results

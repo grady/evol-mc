@@ -190,17 +190,18 @@ curve((dnorm(x)+dnorm(x,10))/2,add=TRUE)
 Here we go with the real-deal. Twenty part trivariate-gaussian mixure.
 The target function is a part of the evolMC package. 
 
-<<runevol,cache=TRUE>>=
+<<runevol>>=
 means <- t(replicate(20, runif(3,-10,10)))
-dmix <- function(x) log(target(x,means))
+dmix <- function(x) target(x,means)
 ladder <- heat(dmix,temps)
 e <- seq(.2,3,length=5)
 runif3 <- function(x) x+runif(length(x),-e,e)
-evolve <- gibbs(reproduce(ladder), mutate(ladder,runif3), p=c(1,1))
+runif4 <- function(x) x+rnorm(length(x), 0, 0.25*temps)
+evolve <- gibbs(reproduce(ladder), mutate(ladder,runif4), p=c(1,1))
 
 init <- matrix(0,5,3)
 #invisible(runif(100))
-lineage <- iterate(10000, evolve, init) 
+lineage <- iterate(1000, evolve, init) 
 @ 
 
 <<>>=

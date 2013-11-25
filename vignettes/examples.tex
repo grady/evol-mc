@@ -96,7 +96,7 @@ starting with some initial value.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##    mean      se    2.5%   97.5% 
-## 1.07100 0.72155 0.03758 2.58650
+## 1.08170 0.72125 0.04479 2.59042
 \end{verbatim}
 \begin{alltt}
 \hlkwd{hist}\hlstd{(chain,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
@@ -123,10 +123,10 @@ Of course, multivariate distributions may also be sampled.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##            x      y
-## mean  1.2738 1.2330
-## se    0.8105 0.7910
-## 2.5%  0.1703 0.1816
-## 97.5% 3.0076 2.9277
+## mean  1.2602 1.2608
+## se    0.8000 0.8189
+## 2.5%  0.1625 0.1424
+## 97.5% 2.9921 3.0173
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain2)}
@@ -151,15 +151,11 @@ updater should update the entire population.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{chain3} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{100}\hlstd{, updater,} \hlkwc{init} \hlstd{=} \hlkwd{rbind}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{2.5}\hlstd{,} \hlnum{3.1}\hlstd{))}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: invalid arguments}}\begin{alltt}
 \hlkwd{plot}\hlstd{(chain3)}
 \end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/parallel} 
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: object 'chain3' not found}}\end{kframe}
 \end{knitrout}
 
 
@@ -254,10 +250,10 @@ Gibbs updater.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##          mean    var
-## mean  27.4908 21.995
-## se     0.6638  4.782
-## 2.5%  26.1954 14.250
-## 97.5% 28.8291 33.006
+## mean  27.4790 21.257
+## se     0.6551  4.585
+## 2.5%  26.1659 13.550
+## 97.5% 28.7486 31.355
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -295,11 +291,11 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
 \end{alltt}
 \begin{verbatim}
 ## Discarding first 1000 states.
-##          mean    var  kappa
-## mean  27.3842 12.734 0.5026
-## se     0.5751  3.550 0.2870
-## 2.5%  26.2059  7.048 0.0316
-## 97.5% 28.5032 20.956 0.9743
+##          mean   var   kappa
+## mean  27.3938 12.80 0.50363
+## se     0.5779  3.71 0.28606
+## 2.5%  26.2685  7.07 0.02597
+## 97.5% 28.5155 21.86 0.97205
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain4)}
@@ -382,15 +378,16 @@ The target function is a part of the evolMC package.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{means} \hlkwb{<-} \hlkwd{t}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,} \hlkwd{runif}\hlstd{(}\hlnum{3}\hlstd{,} \hlopt{-}\hlnum{10}\hlstd{,} \hlnum{10}\hlstd{)))}
-\hlstd{dmix} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(}\hlkwd{target}\hlstd{(x, means))}
+\hlstd{dmix} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{target}\hlstd{(x, means)}
 \hlstd{ladder} \hlkwb{<-} \hlkwd{heat}\hlstd{(dmix, temps)}
 \hlstd{e} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{3}\hlstd{,} \hlkwc{length} \hlstd{=} \hlnum{5}\hlstd{)}
 \hlstd{runif3} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlstd{e, e)}
-\hlstd{evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif3),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
+\hlstd{runif4} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{rnorm}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlnum{0}\hlstd{,} \hlnum{0.25} \hlopt{*} \hlstd{temps)}
+\hlstd{evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif4),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
 
 \hlstd{init} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{3}\hlstd{)}
 \hlcom{# invisible(runif(100))}
-\hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, evolve, init)}
+\hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{1000}\hlstd{, evolve, init)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
