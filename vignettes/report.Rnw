@@ -155,11 +155,12 @@ the parents are selected with weights based on their fitness.
     \Procedure{Mutate}{}
     \State Copy the current population to $x$.
     \ForAll{individuals in $x$}
-    \State Add noise with variance proportional to $t_i$ to individual $x_i$.
-    \EndFor
+    \State $y \gets \mathcal N_d(x_i,t_i \sigma^2I)$
     \Wp{$\min\{1,\exp(\cdots)\}$}
-    \State Set the current population to $x$.
+    \State $x_i \gets y$
     \EndWp
+    \EndFor
+    \State Set current population to $x$.
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
@@ -207,10 +208,12 @@ the parents are selected with weights based on their fitness.
 \subsection{Simulations}
 \label{sec:methods-simulations}
 
-At each step of the chain the EMC algorithm either does a mutate or
-crossover step. The 
+We began our investigation of the EMC algorithm by attempting to
+determine good values for the mutation proposal distributions. 
 
-This section should describe the simulations we did.
+Parallel tempering is a special case of EMC, where the mutation
+probability, $p_m=1$. A $n$-th simulation varied the mutation
+probability.
 
 \section{Results}
 \label{sec:results}
