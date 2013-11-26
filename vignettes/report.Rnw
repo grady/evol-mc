@@ -11,6 +11,8 @@
 
 \usepackage[nolists]{endfloat}
 \renewcommand{\efloatseparator}{}
+\renewcommand{\floatplace}[1]{}
+
 \DeclareDelayedFloat{algorithm}[aaa]{Algorithms}
 
 
@@ -69,7 +71,7 @@ iteration. \needcite
 The discussion of population based Monte Carlo methods necessarily
 begins by introducing some terminology. The following recounts the
 terminology given in Chapter 5 of \cite{liang2011advanced}: We wish to
-sample from a distribution \[f(x|t) \propto \exp\{ -H(x)/t \}\] where
+sample from a distribution $f(x|t) \propto \exp\{ -H(x)/t \}$, where
 $t\ge 1$ is called the \emph{temperature} and $H(x)$, called the
 \emph{fitness function}, corresponds to the negative log-density of
 $x$, up to a constant. A \emph{population} $\mathbf{x}$ consists of
@@ -126,7 +128,7 @@ The EMC algorithm we have implemented is described briefly in
 Algorithms \ref{alg:emc}--\ref{alg:exchange}.  The mutate step uses a
 simple random-walk approach, where the variance of the noise
 distribution depends on the temperature of the individual being
-modified.  The crossover we used is a simple single-splice one, where
+modified.  The crossover we used is a simple single-splice version, where
 the parents are selected with weights based on their fitness.
 
 
@@ -214,6 +216,9 @@ determine good values for the mutation proposal distributions.
 Parallel tempering is a special case of EMC, where the mutation
 probability, $p_m=1$. A $n$-th simulation varied the mutation
 probability.
+
+The structure of the temperature ladder has a significant effect on
+the performance of the markov chain. We investigated this.
 
 \section{Results}
 \label{sec:results}
