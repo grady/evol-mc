@@ -18,3 +18,4 @@ Collate:
     'compose.R'
     'evolve.R'
     'proposals.R'
+    'adapt.R'

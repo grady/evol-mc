@@ -14,9 +14,11 @@
 ##' @param bar print progress bar?
 ##' @return a multivariate proposing function 
 ##' @author Grady Weyenberg
+##' @export
 ##' @examples
 ##' ## define a multivariate target density
-##' tgt <- function(state) dmvnorm(as.vector(state),rep(0,4),var(iris[1:4]), log=TRUE)
+##' tgt <- function(state)
+##'   -mahalanobis(as.vector(state),colMeans(iris[1:4]),var(iris[1:4]))/2
 ##' ## adapt.normal attempts to create a good proposal distribution
 ##' mvn.prop <- adapt.normal(tgt, rep(0,4), nblocks=20)
 ##' environment(mvn.prop)$sigma #the proposal covariance
@@ -42,3 +44,7 @@ adapt.normal <- function(target, init, sigma=diag(length(init)), blocksize=500, 
   }
   gaussian.walk(sigma)
 }
+
+
+tgt <- function(state)  -mahalanobis(as.vector(state),colMeans(iris[1:4]),var(iris[1:4]))/2
+mvn.prop <- adapt.normal(tgt, rep(0,4), nblocks=20)
