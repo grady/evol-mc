@@ -158,6 +158,11 @@ print.chain <- function(x,...){
   val
 }
 
+c.chain <- function(...,recursive=FALSE){
+  y <- NextMethod()
+  class(y) <- oldClass(..1)
+  y
+}
 
 ##' Transform a chain to an array
 ##'

@@ -61,3 +61,19 @@ crossover2d <- function(old, new){
     px <- sum(x[idx])/sum(x)
     px
 }
+
+
+##' Multivariate normal random walk proposal
+##'
+##' Creates a Gaussian random walk updater function using the given
+##' covariance matrix. Assumes state is a vector. NB: This is NOT the
+##' updater function itself. The return value is the updater function.
+##' @param sigma covariance matrix
+##' @return proposal generator function 
+##' @author Grady Weyenberg
+##' @export
+gaussian.walk <- function(sigma){
+  rt.sigma <- chol(sigma,pivot=TRUE)
+  rt.sigma <- rt.sigma[,order(attr(rt.sigma, "pivot"))] #undo pivot
+  function(state) state + drop(crossprod(rt.sigma, rnorm(ncol(rt.sigma))))
+}

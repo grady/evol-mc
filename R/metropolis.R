@@ -17,18 +17,17 @@
 metropolis <- function(target,rprop,dprop=NULL) {
   rprop <- match.fun(rprop)
   target <- match.fun(target)
-  fn <- function(state,...){
+  function(state,...){
     new <- rprop(state)
     ## a is -log(metropolis factor)
-    lna <- target(state) - target(new)
-    if(is.function(dprop)) lna <- lna - dprop(state,new) + dprop(new,state)
-    i <- lna > 0.0 # if false acceptance prob is >=1, so replace
-    tryCatch(
-    i[i] <- rexp(sum(i)) <= lna[i] # if (i) keep w/prob 1-exp(-a) = pexp(a)
-        ,error=function(x) browser())
+    a <- target(state) - target(new)
+    if(is.function(dprop)) a <- a - dprop(state,new) + dprop(new,state)
+    i <- a > 0.0 # if false acceptance prob is >=1, so replace
+    ## tryCatch(
+    i[i] <- rexp(sum(i)) <= a[i] # if (i) keep w/prob 1-exp(-a) = pexp(a)
+    ## ,error=function(x) browser())
     state[!i] <- new[!i] # if (i) keep else replace
     attr(state,'accept') <- !i
     state
   } 
-  fn
 }
