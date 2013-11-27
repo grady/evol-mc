@@ -45,6 +45,3 @@ adapt.normal <- function(target, init, sigma=diag(length(init)), blocksize=500, 
   gaussian.walk(sigma)
 }
 
-
-tgt <- function(state)  -mahalanobis(as.vector(state),colMeans(iris[1:4]),var(iris[1:4]))/2
-mvn.prop <- adapt.normal(tgt, rep(0,4), nblocks=20)
