@@ -72,8 +72,34 @@ crossover2d <- function(old, new){
 ##' @return proposal generator function 
 ##' @author Grady Weyenberg
 ##' @export
+##' @examples
+##' tgt <- function(state)
+##'   -mahalanobis(as.vector(state),colMeans(iris[1:4]),var(iris[1:4]))/2
+##' rprop <- gaussian.walk(diag(4)/20)
+##' iterate(10, metropolis(tgt,rprop), rep(0,4))
 gaussian.walk <- function(sigma){
   rt.sigma <- chol(sigma,pivot=TRUE)
   rt.sigma <- rt.sigma[,order(attr(rt.sigma, "pivot"))] #undo pivot
   function(state) state + drop(crossprod(rt.sigma, rnorm(ncol(rt.sigma))))
 }
+
+
+##' Uniform jumping proposal functions
+##'
+##' I'm not sure about if these should be like gaussian.walk or
+##' this. The function from metropolis returns function(state,...),
+##' and the ... is passed to the rprop and dprop functions. It allows
+##' for this to work, but in practice it seems to make code less self
+##' contained and more confusing, since you have to suppply arguments
+##' to iterate to control the walker. On the other hand this method
+##' means one less intermediate function to construct, and the
+##' opportunity to adapt without creating a new proposal function.
+##' @param eps maximum magnitude of a jump
+##' @author Grady Weyenberg
+##' @examples
+##' tgt <- function(state)
+##'   -mahalanobis(as.vector(state),colMeans(iris[1:4]),var(iris[1:4]))/2
+##' iterate(10, metropolis(tgt,uniform.walk), rep(0,4), eps=0.5)
+uniform.walk <- function(state,eps=1) state + runif(length(state),-eps,eps)
+
+

@@ -57,12 +57,12 @@
 %\VignetteIndexEntry{Simulation Report} 
 %\VignetteDepends{evolMC,knitr} 
 %\VignetteEngine{knitr::knitr}
+\usepackage{setspace}
 
 \usepackage[nolists]{endfloat}
-\renewcommand{\efloatseparator}{}
-\renewcommand{\floatplace}[1]{}
-
-\DeclareDelayedFloat{algorithm}[aaa]{Algorithms}
+\renewcommand{\efloatseparator}{} %multiple floats per page
+\renewcommand{\floatplace}[1]{} %no [about here] marker text
+\DeclareDelayedFloat{algorithm}[aaa]{Algorithms} %endfloat algorithms
 
 
 \newcommand{\grady}[1]{\marginpar{#1--Grady}}
@@ -73,7 +73,9 @@
 \newcommand{\Exp}{\mathcal E}
 \newcommand{\needcite}{{\color{red}[citation needed]}}
 \newcommand{\ret}{{\bf return} }
-\algdef{SE}[WP]{Wp}{EndWp}[1]{{\bf with prob}\ #1\ }{\algorithmicend}%
+
+\algdef{SE}[WP]{Wp}{EndWp}[1]{{\bf with prob}\ #1\ }{\algorithmicend\
+  {\bf w/prob}}%
 \algdef{Ce}[OW]{WP}{Ow}{EndWp}{{\bf otherwise}\ }%
 
 
@@ -85,9 +87,8 @@
 
 
 \begin{document}
-
 \maketitle
-
+\doublespacing
 
 \begin{abstract}
   Sampling from multi-modal target distributions proves difficult for
