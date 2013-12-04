@@ -36,14 +36,15 @@ crossover <- function(state){
 ##' @param state population matrix of parents
 ##' @return a new state
 ##' @author Edward A. Roualdes
-crossover2 <- function(state){
-    h <- apply(state,1,function(x) exp(dmix(x)))
+weighted.crossover <- function(state,fn){
+    h <- apply(state,1,function(x) exp(fn(x)))
+    h <- h / sum(h) #normalize? (i don't think it's required?)
     vec <- seq_len(nrow(state))
-    x1 <- sample(vec, 1, prob=h/sum(h))
+    x1 <- sample(vec, 1, prob=h)
     x2 <- sample(vec[-x1], 1)
     c <- seq_len(sample.int(ncol(state),1))
     state[c(x1,x2),c] <- state[c(x2,x1),c]
-    attr(state, 'parents') <- c(x1,x2)
+    attr(state, 'p') <- h
     state
 }
 
@@ -54,10 +55,10 @@ crossover2 <- function(state){
 ##' @param old old population matrix of parents
 ##' @param new newly proposed population matrix of parents
 ##' @author Edward A. Roualdes
-crossover2d <- function(old, new){
+crossover2d <- function(old, new,fn){
     ## find differing rows between old and new states
     if (is.null(idx <- attr(new, 'parents'))) idx <- attr(old, 'parents')
-    x <- apply(new,1,function(x) exp(dmix(x)))
+    x <- apply(new,1,function(x) exp(fn(x)))
     px <- sum(x[idx])/sum(x)
     px
 }
