@@ -198,18 +198,29 @@ e <- seq(.2,3,length=5)
 runif3 <- function(x) x+runif(length(x),-e,e)
 runif4 <- function(x) x+rnorm(length(x), 0, 0.25*temps)
 evolve <- gibbs(reproduce(ladder), mutate(ladder,runif4), p=c(1,1))
+ptemp <- mutate(ladder,runif4)
+wt.evolve <- gibbs(weighted.reproduce(ladder), mutate(ladder,runif4), p=c(1,1))
 
 init <- matrix(0,5,3)
 #invisible(runif(100))
-lineage <- iterate(1000, evolve, init) 
+lineage <- iterate(10000, evolve, init, bar=1) 
+pt.lineage <- iterate(10000, ptemp, init, bar=1) 
+wt.lineage <- iterate(10000, wt.evolve, init, bar=1) 
 @ 
 
 <<>>=
 plot(lineage)
 m <- aperm(simplify2array(lineage))
+wt.m <- aperm(simplify2array(wt.lineage))
+pt.m <- aperm(simplify2array(pt.lineage))
 library(scatterplot3d)
 pp <- scatterplot3d(means)
-invisible(sapply(5:1,function(i) pp$points3d(m[,,i],col=i+1)))
+#invisible(sapply(5:1,function(i) pp$points3d(m[,,i],col=i+1)))
+pp$points3d(m[,,1],col=2)
+pp$points3d(wt.m[,,1],col=3)
+pp$points3d(pt.m[,,1],col=3)
+pp$points3d(m[,,1],col=2)
+
 pp$points3d(means,col=1,pch=19)
 
 pairs(m[,,1])

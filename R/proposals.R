@@ -8,7 +8,7 @@
 ##' @return new state with two neighbors interchanged.
 ##' @author Grady Weyenberg
 ##' @export
-exchange <- function(state){
+exchange <- function(state,...){
   n <- nrow(state)
   i <- sample.int(n,1)
   j <- i + (rbinom(1,1,0.5)*2L - 1L)
@@ -36,15 +36,15 @@ crossover <- function(state){
 ##' @param state population matrix of parents
 ##' @return a new state
 ##' @author Edward A. Roualdes
-weighted.crossover <- function(state,fn){
-    h <- apply(state,1,function(x) exp(fn(x)))
-    h <- h / sum(h) #normalize? (i don't think it's required?)
+weighted.crossover <- function(state){
+    h <- apply(state,1,function(x) exp(dmix(x)))
+    ## h <- h / sum(h) #normalize? (i don't think it's required?)
     vec <- seq_len(nrow(state))
     x1 <- sample(vec, 1, prob=h)
     x2 <- sample(vec[-x1], 1)
     c <- seq_len(sample.int(ncol(state),1))
     state[c(x1,x2),c] <- state[c(x2,x1),c]
-    attr(state, 'p') <- h
+    attr(state, 'i') <- x1
     state
 }
 
@@ -55,12 +55,12 @@ weighted.crossover <- function(state,fn){
 ##' @param old old population matrix of parents
 ##' @param new newly proposed population matrix of parents
 ##' @author Edward A. Roualdes
-crossover2d <- function(old, new,fn){
+ld.wt.crossover <- function(new, old){
     ## find differing rows between old and new states
-    if (is.null(idx <- attr(new, 'parents'))) idx <- attr(old, 'parents')
-    x <- apply(new,1,function(x) exp(fn(x)))
-    px <- sum(x[idx])/sum(x)
-    px
+    if (is.null(i <- attr(new, 'i')))
+      i <- attr(old, 'i')
+    x <- apply(old,1,function(y) exp(dmix(y)))
+    x[i] / sum(x)
 }
 
 

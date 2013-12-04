@@ -36,8 +36,8 @@ reproduce <- function(ladder){
 
 ##' @rdname mutate
 ##' @export
-reproduce2 <- function(ladder){
-  mate <- metropolis(prod %c% ladder, crossover2, crossover2d)
-  swap <- metropolis(prod %c% ladder, exchange)
+weighted.reproduce <- function(ladder){
+  mate <- metropolis(sum %c% ladder, weighted.crossover, ld.wt.crossover)
+  swap <- metropolis(sum %c% ladder, exchange)
   swap %c% mate
 }
