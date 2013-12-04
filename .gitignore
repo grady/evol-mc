@@ -11,6 +11,10 @@
 *.aaa
 vignettes/cache
 vignettes/figure
+vignettes/*.nav
+vignettes/*.snm
+vignettes/*.toc
+vignettes/*.vrb
 
 .Rhistory
 *-Ex.R
