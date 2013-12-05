@@ -49,6 +49,8 @@
 
 \usepackage{alltt}
 \usepackage{fullpage}
+\usepackage{hyperref}
+\usepackage{amsmath}
 %\VignetteIndexEntry{evolMC demo} 
 %\VignetteDepends{evolMC,knitr} 
 %\VignetteEngine{knitr::knitr}
@@ -140,7 +142,12 @@ altered if desired by the user.
 ## Discarding first 1000 states.
 \end{verbatim}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/chain1hist} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/chain1hist} 
+
+}
+
+
 
 \end{knitrout}
 
@@ -164,21 +171,31 @@ a vector. (Due to the {\tt length(x)} rather than {\tt 1}.) We pass these functi
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##            x      y
-## mean  1.2738 1.2330
-## se    0.8105 0.7910
-## 2.5%  0.1703 0.1816
-## 97.5% 3.0076 2.9277
+## mean  1.3051 1.2055
+## se    0.8184 0.7974
+## 2.5%  0.1707 0.1665
+## 97.5% 2.9813 2.9978
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain2)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/mvt1} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/mvt1} 
+
+}
+
+
 \begin{kframe}\begin{alltt}
 \hlkwd{plot}\hlstd{(}\hlkwd{t}\hlstd{(}\hlkwd{simplify2array}\hlstd{(chain2)[}\hlnum{1}\hlstd{, , ]))}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/mvt2} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/mvt2} 
+
+}
+
+
 
 \end{knitrout}
 
@@ -198,7 +215,12 @@ chains.\footnote{The whole issue of what the ``default'' structure of
 \hlkwd{plot}\hlstd{(chain3)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/parallel} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/parallel} 
+
+}
+
+
 
 \end{knitrout}
 
@@ -220,53 +242,39 @@ this is not strictly required.}
 \hlkwd{plot}\hlstd{(chain4)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/multi-multi} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/multi-multi} 
+
+}
+
+
 
 \end{knitrout}
 
 
 \subsection{Gibbs sampling}
 \label{sec:gibbs-sampling}
-A gibbs updater calls several updating functions sequentially. Here we
-find Baysean location-scale parameter estimates for a t-distribution
-likelihood with known degrees of freedom $5/2$. The model
-specification in this case is $y|\mu,w\sim N(\mu,w^{-1})$ and
-$w|\sigma^2,\nu\sim G(\nu/2,\sigma^2\nu/2)$, with priors $\mu\sim N$
-and $\sigma^2\sim G$.
+
+
+A gibbs updater calls several updating functions sequentially.  The
+following example problem is given in Casella and George
+(1992).\footnote{I actually found this at
+  \url{http://web.mit.edu/~wingated/www/introductions/mcmc-gibbs-intro.pdf}.}
+We wish to sample from a joint distribution
+\[p(x, y) = {n \choose x} y^{x+\alpha-1} (1-y)^{n-x+\beta-1}.\]
+The conditional distributions are 
+$x|y \sim \text{Bin}(n, y)$, and $y |x \sim \text{Beta}(x +
+\alpha, n-x+\beta)$. We let $n=100$, and $\alpha=\beta=2$ in this example.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{newcomb} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{28}\hlstd{,} \hlopt{-}\hlnum{44}\hlstd{,} \hlnum{29}\hlstd{,} \hlnum{30}\hlstd{,} \hlnum{26}\hlstd{,} \hlnum{27}\hlstd{,} \hlnum{22}\hlstd{,} \hlnum{23}\hlstd{,} \hlnum{33}\hlstd{,} \hlnum{16}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{29}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{40}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{31}\hlstd{,}
-    \hlnum{34}\hlstd{,} \hlopt{-}\hlnum{2}\hlstd{,} \hlnum{25}\hlstd{,} \hlnum{19}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{28}\hlstd{,} \hlnum{37}\hlstd{,} \hlnum{32}\hlstd{,} \hlnum{20}\hlstd{,} \hlnum{25}\hlstd{,} \hlnum{25}\hlstd{,} \hlnum{36}\hlstd{,} \hlnum{36}\hlstd{,} \hlnum{21}\hlstd{,} \hlnum{28}\hlstd{,} \hlnum{26}\hlstd{,} \hlnum{32}\hlstd{,} \hlnum{28}\hlstd{,}
-    \hlnum{26}\hlstd{,} \hlnum{30}\hlstd{,} \hlnum{36}\hlstd{,} \hlnum{29}\hlstd{,} \hlnum{30}\hlstd{,} \hlnum{22}\hlstd{,} \hlnum{36}\hlstd{,} \hlnum{27}\hlstd{,} \hlnum{26}\hlstd{,} \hlnum{28}\hlstd{,} \hlnum{29}\hlstd{,} \hlnum{23}\hlstd{,} \hlnum{31}\hlstd{,} \hlnum{32}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{27}\hlstd{,} \hlnum{27}\hlstd{,} \hlnum{27}\hlstd{,}
-    \hlnum{32}\hlstd{,} \hlnum{25}\hlstd{,} \hlnum{28}\hlstd{,} \hlnum{27}\hlstd{,} \hlnum{26}\hlstd{,} \hlnum{24}\hlstd{,} \hlnum{32}\hlstd{,} \hlnum{29}\hlstd{,} \hlnum{28}\hlstd{,} \hlnum{33}\hlstd{,} \hlnum{39}\hlstd{,} \hlnum{25}\hlstd{,} \hlnum{16}\hlstd{,} \hlnum{23}\hlstd{)}
-\hlcom{##' Full conditional updater for mu }
-\hlstd{f.m} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{,} \hlkwc{...}\hlstd{) \{}
-    \hlstd{k} \hlkwb{<-} \hlkwd{seq_len}\hlstd{(}\hlkwd{ncol}\hlstd{(state)} \hlopt{-} \hlkwd{length}\hlstd{(newcomb))}
-    \hlstd{w} \hlkwb{<-} \hlkwd{rowSums}\hlstd{(state[,} \hlopt{-}\hlstd{k])}
-    \hlstd{mu} \hlkwb{<-} \hlstd{(state[,} \hlopt{-}\hlstd{k]} \hlopt{%*%} \hlstd{newcomb)}\hlopt{/}\hlstd{(}\hlnum{1e-04} \hlopt{+} \hlstd{w)}
-    \hlstd{sd} \hlkwb{<-} \hlnum{1}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlnum{1e-04} \hlopt{+} \hlstd{w)}
-    \hlstd{n} \hlkwb{<-} \hlkwd{nrow}\hlstd{(state)}
-    \hlstd{state[,} \hlnum{1}\hlstd{]} \hlkwb{<-} \hlkwd{rnorm}\hlstd{(n, mu, sd)}
+\hlcom{## state = cbind(x,y)}
+\hlstd{x.y} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{) \{}
+    \hlstd{state[,} \hlnum{1}\hlstd{]} \hlkwb{<-} \hlkwd{rbinom}\hlstd{(}\hlkwd{nrow}\hlstd{(state),} \hlnum{100}\hlstd{, state[,} \hlnum{2}\hlstd{])}
     \hlstd{state}
 \hlstd{\}}
-\hlcom{##' Full conditional updater for sigma^2}
-\hlstd{f.v} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{,} \hlkwc{df} \hlstd{=} \hlnum{FALSE}\hlstd{) \{}
-    \hlstd{nu} \hlkwb{<-} \hlkwa{if} \hlstd{(df)}
-        \hlnum{1}\hlopt{/}\hlstd{state[,} \hlnum{3}\hlstd{]} \hlkwa{else} \hlnum{5}
-    \hlstd{k} \hlkwb{<-} \hlkwd{seq_len}\hlstd{(}\hlkwd{ncol}\hlstd{(state)} \hlopt{-} \hlkwd{length}\hlstd{(newcomb))}
-    \hlstd{n} \hlkwb{<-} \hlkwd{ncol}\hlstd{(state[,} \hlopt{-}\hlstd{k])}
-    \hlstd{rates} \hlkwb{<-} \hlnum{0.1} \hlopt{+} \hlkwd{rowSums}\hlstd{(state[,} \hlopt{-}\hlstd{k])} \hlopt{*} \hlstd{nu}\hlopt{/}\hlnum{2}
-    \hlstd{state[,} \hlnum{2}\hlstd{]} \hlkwb{<-} \hlkwd{rgamma}\hlstd{(}\hlkwd{nrow}\hlstd{(state),} \hlnum{0.1} \hlopt{+} \hlstd{n} \hlopt{*} \hlstd{nu}\hlopt{/}\hlnum{2}\hlstd{, rates)}
-    \hlstd{state}
-\hlstd{\}}
-\hlcom{##' Full conditional updater for w}
-\hlstd{f.w} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{,} \hlkwc{df} \hlstd{=} \hlnum{FALSE}\hlstd{) \{}
-    \hlstd{nu} \hlkwb{<-} \hlkwa{if} \hlstd{(df)}
-        \hlnum{1}\hlopt{/}\hlstd{state[,} \hlnum{3}\hlstd{]} \hlkwa{else} \hlnum{5}
-    \hlstd{k} \hlkwb{<-} \hlkwd{seq_len}\hlstd{(}\hlkwd{ncol}\hlstd{(state)} \hlopt{-} \hlkwd{length}\hlstd{(newcomb))}
-    \hlstd{rate} \hlkwb{<-} \hlstd{(nu} \hlopt{*} \hlstd{state[,} \hlnum{2}\hlstd{]} \hlopt{+} \hlkwd{t}\hlstd{(}\hlkwd{apply}\hlstd{(state,} \hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{row}\hlstd{) (newcomb} \hlopt{-} \hlstd{row[}\hlnum{1}\hlstd{])}\hlopt{^}\hlnum{2}\hlstd{)))}\hlopt{/}\hlnum{2}
-    \hlstd{state[,} \hlopt{-}\hlstd{k]} \hlkwb{<-} \hlkwd{rgamma}\hlstd{(}\hlkwd{length}\hlstd{(state[,} \hlopt{-}\hlstd{k]), (nu} \hlopt{+} \hlnum{1}\hlstd{)}\hlopt{/}\hlnum{2}\hlstd{, rate)}
+\hlstd{y.x} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{) \{}
+    \hlstd{state[,} \hlnum{2}\hlstd{]} \hlkwb{<-} \hlkwd{rbeta}\hlstd{(}\hlkwd{nrow}\hlstd{(state), state[,} \hlnum{1}\hlstd{]} \hlopt{+} \hlnum{2}\hlstd{,} \hlnum{100} \hlopt{-} \hlstd{state[,} \hlnum{1}\hlstd{]} \hlopt{+} \hlnum{2}\hlstd{)}
     \hlstd{state}
 \hlstd{\}}
 \end{alltt}
@@ -279,89 +287,26 @@ Gibbs updater.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{init} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwc{mean} \hlstd{=} \hlnum{25}\hlstd{,} \hlkwc{var} \hlstd{=} \hlnum{22}\hlstd{,} \hlkwd{rgamma}\hlstd{(}\hlkwd{length}\hlstd{(newcomb),} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{22} \hlopt{*} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{)),}
-    \hlkwd{c}\hlstd{(}\hlnum{10}\hlstd{,} \hlnum{10}\hlstd{,} \hlkwd{rgamma}\hlstd{(}\hlkwd{length}\hlstd{(newcomb),} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{10} \hlopt{*} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{)))}
-\hlstd{newcomb.gibbs} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(f.m, f.v, f.w)}
-\hlstd{chain5} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, newcomb.gibbs, init)}
-\hlstd{chain5} \hlkwb{<-} \hlkwd{prune}\hlstd{(chain5,} \hlnum{TRUE}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{2}\hlstd{)}
-\hlkwd{plot}\hlstd{(chain5)}
+\hlstd{init} \hlkwb{<-} \hlkwd{cbind}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{1}\hlopt{:}\hlnum{10}\hlstd{,} \hlkwc{y} \hlstd{=} \hlkwd{seq}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.9}\hlstd{,} \hlkwc{length.out} \hlstd{=} \hlnum{10}\hlstd{))}
+\hlstd{gibbs.updater} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(x.y, y.x)}
+\hlstd{chain5} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{5000}\hlstd{, gibbs.updater, init)}
+\hlkwd{plot}\hlstd{(}\hlkwd{t}\hlstd{(}\hlkwd{simplify2array}\hlstd{(chain5)[}\hlnum{1}\hlstd{, , ]))}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/gibbs} 
-\begin{kframe}\begin{alltt}
-\hlkwd{summary}\hlstd{(chain5)}
-\end{alltt}
-\begin{verbatim}
-## Discarding first 1000 states.
-##          mean    var
-## mean  27.4908 21.995
-## se     0.6638  4.782
-## 2.5%  26.1954 14.250
-## 97.5% 28.8291 33.006
-\end{verbatim}
-\end{kframe}
+
+{\centering \includegraphics[width=0.7\textwidth]{figure/gibbs} 
+
+}
+
+
+
 \end{knitrout}
 
 
 Of course, you can use a metropolis updater in place of a full
-conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{dtexp} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{rate} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{min} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{max} \hlstd{=} \hlnum{Inf}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{FALSE}\hlstd{) \{}
-    \hlstd{d} \hlkwb{<-} \hlkwd{dexp}\hlstd{(x, rate)} \hlopt{*} \hlstd{(x} \hlopt{>=} \hlstd{min)} \hlopt{*} \hlstd{(x} \hlopt{<=} \hlstd{max)}
-    \hlstd{c} \hlkwb{<-} \hlkwd{pexp}\hlstd{(max, rate)} \hlopt{-} \hlkwd{pexp}\hlstd{(min, rate)}
-    \hlkwa{if} \hlstd{(log)}
-        \hlkwd{log}\hlstd{(d}\hlopt{/}\hlstd{c)} \hlkwa{else} \hlstd{d}\hlopt{/}\hlstd{c}
-\hlstd{\}}
-\hlstd{posterior} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{) \{}
-    \hlkwa{if} \hlstd{(}\hlopt{!}\hlkwd{is.matrix}\hlstd{(state))}
-        \hlstd{state} \hlkwb{<-} \hlkwd{matrix}\hlstd{(state,} \hlnum{1}\hlstd{)}
-    \hlstd{f} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{sum}\hlstd{(}\hlkwd{dt}\hlstd{((newcomb} \hlopt{-} \hlstd{x[}\hlnum{1}\hlstd{])}\hlopt{/}\hlkwd{sqrt}\hlstd{(x[}\hlnum{2}\hlstd{]),} \hlnum{1}\hlopt{/}\hlstd{x[}\hlnum{3}\hlstd{],} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{-}
-        \hlkwd{log}\hlstd{(x[}\hlnum{2}\hlstd{])}\hlopt{/}\hlnum{2}\hlstd{)}
-    \hlstd{(}\hlkwd{apply}\hlstd{(state,} \hlnum{1}\hlstd{, f)} \hlopt{+} \hlkwd{dnorm}\hlstd{(state[,} \hlnum{1}\hlstd{],} \hlkwc{sd} \hlstd{=} \hlnum{100}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{dgamma}\hlstd{(state[,}
-        \hlnum{2}\hlstd{],} \hlnum{0.1}\hlstd{,} \hlnum{0.1}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{dtexp}\hlstd{(state[,} \hlnum{3}\hlstd{],} \hlkwc{max} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{))}
-\hlstd{\}}
-\hlstd{kappa.prop} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{,} \hlkwc{...}\hlstd{) \{}
-    \hlstd{state[,} \hlnum{3}\hlstd{]} \hlkwb{<-} \hlkwd{runif}\hlstd{(}\hlkwd{nrow}\hlstd{(state))}
-    \hlstd{state}
-\hlstd{\}}
-\hlstd{init} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwc{mean} \hlstd{=} \hlnum{25}\hlstd{,} \hlkwc{var} \hlstd{=} \hlnum{22}\hlstd{,} \hlkwc{kappa} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwd{rgamma}\hlstd{(}\hlkwd{length}\hlstd{(newcomb),} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{,}
-    \hlnum{22} \hlopt{*} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{)),} \hlkwd{c}\hlstd{(}\hlnum{10}\hlstd{,} \hlnum{10}\hlstd{,} \hlnum{0.4}\hlstd{,} \hlkwd{rgamma}\hlstd{(}\hlkwd{length}\hlstd{(newcomb),} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{10} \hlopt{*} \hlnum{5}\hlopt{/}\hlnum{2}\hlstd{)))}
-\hlstd{newcomb.chain3} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(f.m, f.v, f.w,} \hlkwd{metropolis}\hlstd{(posterior, kappa.prop))}
-\hlstd{chain4} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, newcomb.chain3, init,} \hlkwc{df} \hlstd{=} \hlnum{TRUE}\hlstd{)}
-\hlstd{chain4} \hlkwb{<-} \hlkwd{prune}\hlstd{(chain4,} \hlnum{TRUE}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{3}\hlstd{)}
-\hlkwd{summary}\hlstd{(chain4)}
-\end{alltt}
-\begin{verbatim}
-## Discarding first 1000 states.
-##          mean    var  kappa
-## mean  27.3778 13.098 0.5377
-## se     0.5836  4.001 0.1495
-## 2.5%  26.2392  6.868 0.2718
-## 97.5% 28.5624 22.274 0.8639
-\end{verbatim}
-\begin{alltt}
-\hlkwd{plot}\hlstd{(chain4)}
-\end{alltt}
-\end{kframe}
-\includegraphics[width=\maxwidth]{figure/gibbs-metropolis} 
-
-\end{knitrout}
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{hist}\hlstd{(chain4,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## Discarding first 1000 states.
-\end{verbatim}
-\end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-2} 
-
-\end{knitrout}
-
+conditional sampler as we did above. In the extreme case, the one-
+parameter-at-a-time metropolis updating scheme can be implemented
+using {\tt gibbs}.
 
 \subsection{Parallel tempering}
 We want to sample from a distribution with separated modes.  First we
@@ -375,40 +320,50 @@ single individual and return the density of that individual.
 \end{kframe}
 \end{knitrout}
 
-Now we can set up the parallel tempering updater. Function temper is similar to
-metropolis, but you must also provide a list of temperatures. (It is
-assumed that the number of individuals in the population will be the
-same as the number of temperature levels.)
+
+Now we can set up the parallel tempering updater. We define a
+population to have individuals in rows and multiple variates. First we
+use the {\tt heat} function to create a function which will evaluate
+heated density values for each individual in the population. The {\tt
+  mutate} function does a metropolis update of each individual in the
+population using the supplied proposal function as described
+previously, then it attempts to exchange individuals between
+temperatures using an appropriate metropolis scheme.
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{temps} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{8}\hlstd{,} \hlnum{15}\hlstd{)}
-\hlstd{updater} \hlkwb{<-} \hlkwd{mutate}\hlstd{(}\hlkwd{heat}\hlstd{(f, temps), propose)}
+\hlstd{hot.dens} \hlkwb{<-} \hlkwd{heat}\hlstd{(f, temps)}
+\hlstd{updater} \hlkwb{<-} \hlkwd{mutate}\hlstd{(hot.dens, propose)}
 \hlstd{init} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlopt{-}\hlnum{3}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{10}\hlstd{,} \hlnum{15}\hlstd{)}
 \hlstd{gch} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{10000}\hlstd{, updater, init)}
 \hlkwd{plot}\hlstd{(gch)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/tempering} 
-\begin{kframe}\begin{alltt}
-\hlstd{xx} \hlkwb{<-} \hlkwd{prune}\hlstd{(gch,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{)}  \hlcom{#extract chain with correct distribution}
-\end{alltt}
-\end{kframe}
+
+{\centering \includegraphics[width=0.8\textwidth]{figure/tempering} 
+
+}
+
+
+
 \end{knitrout}
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlstd{xx} \hlkwb{<-} \hlkwd{prune}\hlstd{(gch,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{)}  \hlcom{#extract chain with correct distribution}
 \hlkwd{hist}\hlstd{(xx,} \hlkwc{freq} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## Discarding first 1000 states.
-\end{verbatim}
-\begin{alltt}
 \hlkwd{curve}\hlstd{((}\hlkwd{dnorm}\hlstd{(x)} \hlopt{+} \hlkwd{dnorm}\hlstd{(x,} \hlnum{10}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-4} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-3} 
+
+}
+
+
 
 \end{knitrout}
 
@@ -450,7 +405,12 @@ The target function is a part of the evolMC package.
 \hlkwd{plot}\hlstd{(lineage)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-51} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-41} 
+
+}
+
+
 \begin{kframe}\begin{alltt}
 \hlstd{m} \hlkwb{<-} \hlkwd{aperm}\hlstd{(}\hlkwd{simplify2array}\hlstd{(wt.lineage))}
 \hlcom{## wt.m <- aperm(simplify2array(wt.lineage)) pt.m <-}
@@ -465,12 +425,22 @@ The target function is a part of the evolMC package.
 \hlstd{pp}\hlopt{$}\hlkwd{points3d}\hlstd{(means,} \hlkwc{col} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-52} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-42} 
+
+}
+
+
 \begin{kframe}\begin{alltt}
 \hlkwd{pairs}\hlstd{(m[, ,} \hlnum{1}\hlstd{])}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-53} 
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-43} 
+
+}
+
+
 \begin{kframe}\begin{alltt}
 \hlcom{## library(rgl) plot3d(m[,,1]) plot3d(means,pch=19,size=15)}
 \hlcom{## sapply(1:5,function(i) points3d(m[,,i],col=i+1))}
