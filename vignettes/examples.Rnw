@@ -15,8 +15,10 @@ library(evolMC)
 \author{Grady Weyenberg}
 \begin{document}
 \maketitle
-
-evolMC is a framework for doing Monte-Carlo simulations.
+\setcounter{section}{1}
+evolMC is a framework for doing Monte-Carlo simulations. The package,
+as of this writing, is not particularly optimized for speed, but
+to allow for the user to easily construct arbitrary MCMC schemes.
 
 \subsection{Univariate and multivariate sampling}
 We wish to use a metropolis sampler to draw from a distribution with
@@ -24,25 +26,56 @@ density \[ f(x) \propto \frac{\sin(x)}{x} \cdot 1_{(0,\pi)}(x). \] We
 can use a uniform distribution on $(-1,1)$ to propose distances to
 jump from the current location.
 
-
 Since the proposal distribution is symmetric, this is enough
-information to implement a Metropolis updater.
+information to implement a Metropolis updater. We must implement a
+log-density function\footnote{Actually, this function need only be
+  known up to the normalizing constant.} that defines the
+distribution. We must also implement a proposal generation function.
 
 <<univariate>>=
-fn <- function(x) log(sin(x)/x * (0<x) * (x<pi))
+ln.d <- function(x) log(sin(x)/x * (0<x) * (x<pi))
 propose <- function(x) x+runif(length(x),-1,1)
-updater <- metropolis(fn, propose)
+@ 
+
+The {\tt metropolis} function accepts the functions that we have
+defined, and returns a new function. The returned function is an
+implementation of the Metropolis updating scheme you have
+defined.\footnote{If your proposal generator is not symmetric, then
+  you must also supply a log-density for the proposal mechanism, and
+  in this case the function returned will implement
+  Metropolis-Hastings.}
+
+<<univariate2>>=
+updater <- metropolis(ln.d, propose)
 @ 
 
 A Markov chain is formed by iteratively calling the updating function
-starting with some initial value.
-<<fig.height=4,cache=TRUE>>=
+starting with some initial value. The {\tt iterate} function forms a
+{\it chain object}, which is simply a list of states that the chain
+realized. If the state object is of a few particularly simple (but
+widely applicable) forms then there are convenient methods defined for
+several common R functions.
+<<univariate3,cache=TRUE>>=
 chain <- iterate(n=10000, fn=updater, init=1)
-summary(chain)
-hist(chain,breaks="fd")
-@
+summary(chain, discard=57)
+@ 
 
-Of course, multivariate distributions may also be sampled. 
+There is a method for the summary function that reports summary
+statistics for the chain. A method for the hist function will create a
+histogram from the chain object. By default, these methods discard the
+first 10\% of values from the chain as a burn-in, but this may be
+altered if desired by the user.
+<<chain1hist,fig.height=4>>=
+hist(chain,breaks="fd")
+@ 
+
+Of course, multivariate distributions may also be sampled. We need
+only define an appropriate multivariate log-density function. A quick
+review of the {\tt propose} function we defined for the univariate
+sampler confirms that it will also work in the case when it is passed
+a vector. (Due to the {\tt length(x)} rather than {\tt 1}.) We pass these functions to
+{\tt metropolis} and obtain our updating function, which is used with
+{\tt iterate} to form the Markov chain.
 <<mvt,cache=TRUE>>=
 mvtarget <- function(x) log(prod(sin(prod(x))/x) * all(x>0,x<pi,prod(x)<pi))
 mvupdate <- metropolis(mvtarget, propose)
@@ -54,11 +87,14 @@ plot(t(simplify2array(chain2)[1,,]))
 
 \subsection{Multiple chains in parallel}
 If the target density returns a vector instead of a scalar, we can run
-multiple chains in parallel. (In this case the state object is a
-matrix with individuals in rows.) In this situation, the proposal
-updater should update the entire population.
+multiple chains in parallel. Our proposal updater should update the
+entire population. If a state is a matrix (as created here by {\tt
+  rbind}), then plot ({\it et. al.}) assumes multiple parallel
+chains.\footnote{The whole issue of what the ``default'' structure of
+  a state is flexible at this point, and I haven't given much
+  thought yet to what the optimal setup may be. On the todo list.}
 <<parallel,cache=TRUE>>=
-chain3 <- iterate(100,updater,init=rbind(0.1,.5,2.5,3.1))
+chain3 <- iterate(1000,updater,init=rbind(0.1,.5,2.5,3.1))
 plot(chain3)
 @ 
 
@@ -79,10 +115,14 @@ plot(chain4)
 
 \subsection{Gibbs sampling}
 \label{sec:gibbs-sampling}
-A gibbs updater calls several updating functions sequentially. Here we
-find Baysean location-scale parameter estimates for a t-distribution
-likelihood with known degrees of freedom $5/2$. The model
-specification in this case is $y|\mu,w\sim N(\mu,w^{-1})$ and
+
+
+A gibbs updater calls several updating functions sequentially.  The
+following example problem is given in Casella and George
+(1992).\footnote{\url{http://web.mit.edu/~wingated/www/introductions/mcmc-gibbs-intro.pdf}}
+Here we find Baysean location-scale parameter estimates for a
+t-distribution likelihood with known degrees of freedom $5/2$. The
+model specification in this case is $y|\mu,w\sim N(\mu,w^{-1})$ and
 $w|\sigma^2,\nu\sim G(\nu/2,\sigma^2\nu/2)$, with priors $\mu\sim N$
 and $\sigma^2\sim G$.
 <<>>=
@@ -142,10 +182,10 @@ dtexp <- function(x,rate=1,min=0,max=Inf,log=FALSE){
 posterior <- function(state){
   if(!is.matrix(state)) state <- matrix(state,1)
   f <- function(x) sum(dt((newcomb-x[1])/sqrt(x[2]), 1/x[3], log=TRUE) - log(x[2])/2)
-  exp(apply(state,1,f) + dnorm(state[,1],sd=100,log=TRUE) +
+  (apply(state,1,f) + dnorm(state[,1],sd=100,log=TRUE) +
       dgamma(state[,2],.1,.1,log=TRUE) + dtexp(state[,3],max=1,log=TRUE))
 }
-kappa.prop <- function(state){
+kappa.prop <- function(state,...){
   state[,3] <- runif(nrow(state))
   state
 }
@@ -190,7 +230,7 @@ curve((dnorm(x)+dnorm(x,10))/2,add=TRUE)
 Here we go with the real-deal. Twenty part trivariate-gaussian mixure.
 The target function is a part of the evolMC package. 
 
-<<runevol>>=
+<<runevol,cache=TRUE>>=
 means <- t(replicate(20, runif(3,-10,10)))
 dmix <- function(x) target(x,means)
 ladder <- heat(dmix,temps)
@@ -203,23 +243,23 @@ wt.evolve <- gibbs(weighted.reproduce(ladder), mutate(ladder,runif4), p=c(1,1))
 
 init <- matrix(0,5,3)
 #invisible(runif(100))
-lineage <- iterate(10000, evolve, init, bar=1) 
-pt.lineage <- iterate(10000, ptemp, init, bar=1) 
-wt.lineage <- iterate(10000, wt.evolve, init, bar=1) 
+##lineage <- iterate(2000, evolve, init, bar=1) 
+## pt.lineage <- iterate(2000, ptemp, init, bar=1) 
+wt.lineage <- iterate(2000, wt.evolve, init, bar=1) 
 @ 
 
 <<>>=
 plot(lineage)
-m <- aperm(simplify2array(lineage))
-wt.m <- aperm(simplify2array(wt.lineage))
-pt.m <- aperm(simplify2array(pt.lineage))
+m <- aperm(simplify2array(wt.lineage))
+##wt.m <- aperm(simplify2array(wt.lineage))
+##pt.m <- aperm(simplify2array(pt.lineage))
 library(scatterplot3d)
 pp <- scatterplot3d(means)
 #invisible(sapply(5:1,function(i) pp$points3d(m[,,i],col=i+1)))
 pp$points3d(m[,,1],col=2)
-pp$points3d(wt.m[,,1],col=3)
-pp$points3d(pt.m[,,1],col=3)
-pp$points3d(m[,,1],col=2)
+##pp$points3d(wt.m[,,1],col=3)
+##pp$points3d(pt.m[,,1],col=3)
+##pp$points3d(m[,,1],col=2)
 
 pp$points3d(means,col=1,pch=19)
 

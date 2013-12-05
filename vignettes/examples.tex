@@ -61,8 +61,10 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 \maketitle
-
-evolMC is a framework for doing Monte-Carlo simulations.
+\setcounter{section}{1}
+evolMC is a framework for doing Monte-Carlo simulations. The package,
+as of this writing, is not particularly optimized for speed, but
+to allow for the user to easily construct arbitrary MCMC schemes.
 
 \subsection{Univariate and multivariate sampling}
 We wish to use a metropolis sampler to draw from a distribution with
@@ -70,34 +72,67 @@ density \[ f(x) \propto \frac{\sin(x)}{x} \cdot 1_{(0,\pi)}(x). \] We
 can use a uniform distribution on $(-1,1)$ to propose distances to
 jump from the current location.
 
-
 Since the proposal distribution is symmetric, this is enough
-information to implement a Metropolis updater.
+information to implement a Metropolis updater. We must implement a
+log-density function\footnote{Actually, this function need only be
+  known up to the normalizing constant.} that defines the
+distribution. We must also implement a proposal generation function.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{fn} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(}\hlkwd{sin}\hlstd{(x)}\hlopt{/}\hlstd{x} \hlopt{*} \hlstd{(}\hlnum{0} \hlopt{<} \hlstd{x)} \hlopt{*} \hlstd{(x} \hlopt{<} \hlstd{pi))}
+\hlstd{ln.d} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(}\hlkwd{sin}\hlstd{(x)}\hlopt{/}\hlstd{x} \hlopt{*} \hlstd{(}\hlnum{0} \hlopt{<} \hlstd{x)} \hlopt{*} \hlstd{(x} \hlopt{<} \hlstd{pi))}
 \hlstd{propose} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{)}
-\hlstd{updater} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(fn, propose)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+The {\tt metropolis} function accepts the functions that we have
+defined, and returns a new function. The returned function is an
+implementation of the Metropolis updating scheme you have
+defined.\footnote{If your proposal generator is not symmetric, then
+  you must also supply a log-density for the proposal mechanism, and
+  in this case the function returned will implement
+  Metropolis-Hastings.}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{updater} \hlkwb{<-} \hlkwd{metropolis}\hlstd{(ln.d, propose)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
 
 A Markov chain is formed by iteratively calling the updating function
-starting with some initial value.
+starting with some initial value. The {\tt iterate} function forms a
+{\it chain object}, which is simply a list of states that the chain
+realized. If the state object is of a few particularly simple (but
+widely applicable) forms then there are convenient methods defined for
+several common R functions.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{chain} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlkwc{n} \hlstd{=} \hlnum{10000}\hlstd{,} \hlkwc{fn} \hlstd{= updater,} \hlkwc{init} \hlstd{=} \hlnum{1}\hlstd{)}
-\hlkwd{summary}\hlstd{(chain)}
+\hlkwd{summary}\hlstd{(chain,} \hlkwc{discard} \hlstd{=} \hlnum{57}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Discarding first 1000 states.
+## Discarding first 57 states.
 ##    mean      se    2.5%   97.5% 
-## 1.08170 0.72125 0.04479 2.59042
+## 1.07001 0.73139 0.03456 2.63735
 \end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+There is a method for the summary function that reports summary
+statistics for the chain. A method for the hist function will create a
+histogram from the chain object. By default, these methods discard the
+first 10\% of values from the chain as a burn-in, but this may be
+altered if desired by the user.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{hist}\hlstd{(chain,} \hlkwc{breaks} \hlstd{=} \hlstr{"fd"}\hlstd{)}
 \end{alltt}
@@ -105,12 +140,18 @@ starting with some initial value.
 ## Discarding first 1000 states.
 \end{verbatim}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-1} 
+\includegraphics[width=\maxwidth]{figure/chain1hist} 
 
 \end{knitrout}
 
 
-Of course, multivariate distributions may also be sampled. 
+Of course, multivariate distributions may also be sampled. We need
+only define an appropriate multivariate log-density function. A quick
+review of the {\tt propose} function we defined for the univariate
+sampler confirms that it will also work in the case when it is passed
+a vector. (Due to the {\tt length(x)} rather than {\tt 1}.) We pass these functions to
+{\tt metropolis} and obtain our updating function, which is used with
+{\tt iterate} to form the Markov chain.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -123,10 +164,10 @@ Of course, multivariate distributions may also be sampled.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##            x      y
-## mean  1.2602 1.2608
-## se    0.8000 0.8189
-## 2.5%  0.1625 0.1424
-## 97.5% 2.9921 3.0173
+## mean  1.2738 1.2330
+## se    0.8105 0.7910
+## 2.5%  0.1703 0.1816
+## 97.5% 3.0076 2.9277
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain2)}
@@ -144,13 +185,16 @@ Of course, multivariate distributions may also be sampled.
 
 \subsection{Multiple chains in parallel}
 If the target density returns a vector instead of a scalar, we can run
-multiple chains in parallel. (In this case the state object is a
-matrix with individuals in rows.) In this situation, the proposal
-updater should update the entire population.
+multiple chains in parallel. Our proposal updater should update the
+entire population. If a state is a matrix (as created here by {\tt
+  rbind}), then plot ({\it et. al.}) assumes multiple parallel
+chains.\footnote{The whole issue of what the ``default'' structure of
+  a state is flexible at this point, and I haven't given much
+  thought yet to what the optimal setup may be. On the todo list.}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{chain3} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{100}\hlstd{, updater,} \hlkwc{init} \hlstd{=} \hlkwd{rbind}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{2.5}\hlstd{,} \hlnum{3.1}\hlstd{))}
+\hlstd{chain3} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{1000}\hlstd{, updater,} \hlkwc{init} \hlstd{=} \hlkwd{rbind}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{0.5}\hlstd{,} \hlnum{2.5}\hlstd{,} \hlnum{3.1}\hlstd{))}
 \hlkwd{plot}\hlstd{(chain3)}
 \end{alltt}
 \end{kframe}
@@ -250,10 +294,10 @@ Gibbs updater.
 \begin{verbatim}
 ## Discarding first 1000 states.
 ##          mean    var
-## mean  27.4790 21.257
-## se     0.6551  4.585
-## 2.5%  26.1659 13.550
-## 97.5% 28.7486 31.355
+## mean  27.4908 21.995
+## se     0.6638  4.782
+## 2.5%  26.1954 14.250
+## 97.5% 28.8291 33.006
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -275,10 +319,10 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
         \hlstd{state} \hlkwb{<-} \hlkwd{matrix}\hlstd{(state,} \hlnum{1}\hlstd{)}
     \hlstd{f} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{sum}\hlstd{(}\hlkwd{dt}\hlstd{((newcomb} \hlopt{-} \hlstd{x[}\hlnum{1}\hlstd{])}\hlopt{/}\hlkwd{sqrt}\hlstd{(x[}\hlnum{2}\hlstd{]),} \hlnum{1}\hlopt{/}\hlstd{x[}\hlnum{3}\hlstd{],} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{-}
         \hlkwd{log}\hlstd{(x[}\hlnum{2}\hlstd{])}\hlopt{/}\hlnum{2}\hlstd{)}
-    \hlkwd{exp}\hlstd{(}\hlkwd{apply}\hlstd{(state,} \hlnum{1}\hlstd{, f)} \hlopt{+} \hlkwd{dnorm}\hlstd{(state[,} \hlnum{1}\hlstd{],} \hlkwc{sd} \hlstd{=} \hlnum{100}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{dgamma}\hlstd{(state[,}
+    \hlstd{(}\hlkwd{apply}\hlstd{(state,} \hlnum{1}\hlstd{, f)} \hlopt{+} \hlkwd{dnorm}\hlstd{(state[,} \hlnum{1}\hlstd{],} \hlkwc{sd} \hlstd{=} \hlnum{100}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{dgamma}\hlstd{(state[,}
         \hlnum{2}\hlstd{],} \hlnum{0.1}\hlstd{,} \hlnum{0.1}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{)} \hlopt{+} \hlkwd{dtexp}\hlstd{(state[,} \hlnum{3}\hlstd{],} \hlkwc{max} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{log} \hlstd{=} \hlnum{TRUE}\hlstd{))}
 \hlstd{\}}
-\hlstd{kappa.prop} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{) \{}
+\hlstd{kappa.prop} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{state}\hlstd{,} \hlkwc{...}\hlstd{) \{}
     \hlstd{state[,} \hlnum{3}\hlstd{]} \hlkwb{<-} \hlkwd{runif}\hlstd{(}\hlkwd{nrow}\hlstd{(state))}
     \hlstd{state}
 \hlstd{\}}
@@ -291,11 +335,11 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
 \end{alltt}
 \begin{verbatim}
 ## Discarding first 1000 states.
-##          mean   var   kappa
-## mean  27.3938 12.80 0.50363
-## se     0.5779  3.71 0.28606
-## 2.5%  26.2685  7.07 0.02597
-## 97.5% 28.5155 21.86 0.97205
+##          mean    var  kappa
+## mean  27.3778 13.098 0.5377
+## se     0.5836  4.001 0.1495
+## 2.5%  26.2392  6.868 0.2718
+## 97.5% 28.5624 22.274 0.8639
 \end{verbatim}
 \begin{alltt}
 \hlkwd{plot}\hlstd{(chain4)}
@@ -314,7 +358,7 @@ conditional. Here we put a prior on $\nu^{-1} \sim E(1)T(0,1)$
 ## Discarding first 1000 states.
 \end{verbatim}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-3} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-2} 
 
 \end{knitrout}
 
@@ -364,7 +408,7 @@ same as the number of temperature levels.)
 \hlkwd{curve}\hlstd{((}\hlkwd{dnorm}\hlstd{(x)} \hlopt{+} \hlkwd{dnorm}\hlstd{(x,} \hlnum{10}\hlstd{))}\hlopt{/}\hlnum{2}\hlstd{,} \hlkwc{add} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-4} 
 
 \end{knitrout}
 
@@ -384,11 +428,18 @@ The target function is a part of the evolMC package.
 \hlstd{runif3} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{runif}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlopt{-}\hlstd{e, e)}
 \hlstd{runif4} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x} \hlopt{+} \hlkwd{rnorm}\hlstd{(}\hlkwd{length}\hlstd{(x),} \hlnum{0}\hlstd{,} \hlnum{0.25} \hlopt{*} \hlstd{temps)}
 \hlstd{evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif4),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{))}
+\hlstd{ptemp} \hlkwb{<-} \hlkwd{mutate}\hlstd{(ladder, runif4)}
+\hlstd{wt.evolve} \hlkwb{<-} \hlkwd{gibbs}\hlstd{(}\hlkwd{weighted.reproduce}\hlstd{(ladder),} \hlkwd{mutate}\hlstd{(ladder, runif4),} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}
+    \hlnum{1}\hlstd{))}
 
 \hlstd{init} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{3}\hlstd{)}
-\hlcom{# invisible(runif(100))}
-\hlstd{lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{1000}\hlstd{, evolve, init)}
+\hlcom{# invisible(runif(100)) lineage <- iterate(2000, evolve, init, bar=1)}
+\hlcom{# pt.lineage <- iterate(2000, ptemp, init, bar=1)}
+\hlstd{wt.lineage} \hlkwb{<-} \hlkwd{iterate}\hlstd{(}\hlnum{2000}\hlstd{, wt.evolve, init,} \hlkwc{bar} \hlstd{=} \hlnum{1}\hlstd{)}
 \end{alltt}
+\begin{verbatim}
+## ===========================================================================
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
@@ -399,21 +450,27 @@ The target function is a part of the evolMC package.
 \hlkwd{plot}\hlstd{(lineage)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-61} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-51} 
 \begin{kframe}\begin{alltt}
-\hlstd{m} \hlkwb{<-} \hlkwd{aperm}\hlstd{(}\hlkwd{simplify2array}\hlstd{(lineage))}
+\hlstd{m} \hlkwb{<-} \hlkwd{aperm}\hlstd{(}\hlkwd{simplify2array}\hlstd{(wt.lineage))}
+\hlcom{## wt.m <- aperm(simplify2array(wt.lineage)) pt.m <-}
+\hlcom{## aperm(simplify2array(pt.lineage))}
 \hlkwd{library}\hlstd{(scatterplot3d)}
 \hlstd{pp} \hlkwb{<-} \hlkwd{scatterplot3d}\hlstd{(means)}
-\hlkwd{invisible}\hlstd{(}\hlkwd{sapply}\hlstd{(}\hlnum{5}\hlopt{:}\hlnum{1}\hlstd{,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{) pp}\hlopt{$}\hlkwd{points3d}\hlstd{(m[, , i],} \hlkwc{col} \hlstd{= i} \hlopt{+} \hlnum{1}\hlstd{)))}
+\hlcom{# invisible(sapply(5:1,function(i) pp$points3d(m[,,i],col=i+1)))}
+\hlstd{pp}\hlopt{$}\hlkwd{points3d}\hlstd{(m[, ,} \hlnum{1}\hlstd{],} \hlkwc{col} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlcom{## pp$points3d(wt.m[,,1],col=3) pp$points3d(pt.m[,,1],col=3)}
+\hlcom{## pp$points3d(m[,,1],col=2)}
+
 \hlstd{pp}\hlopt{$}\hlkwd{points3d}\hlstd{(means,} \hlkwc{col} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{19}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-62} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-52} 
 \begin{kframe}\begin{alltt}
 \hlkwd{pairs}\hlstd{(m[, ,} \hlnum{1}\hlstd{])}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-63} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-53} 
 \begin{kframe}\begin{alltt}
 \hlcom{## library(rgl) plot3d(m[,,1]) plot3d(means,pch=19,size=15)}
 \hlcom{## sapply(1:5,function(i) points3d(m[,,i],col=i+1))}
