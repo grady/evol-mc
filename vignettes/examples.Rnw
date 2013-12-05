@@ -229,6 +229,12 @@ pairs(m[,,1])
 ## plot3d(m[,,1])
 ## plot3d(means,pch=19,size=15)
 ## sapply(1:5,function(i) points3d(m[,,i],col=i+1))
+@ 
 
+There is now an {\tt as.mcmc.list} method that converts chain objects
+to {\tt coda mcmc.list} objects. Here we compute the effective sample
+size of the chain with the desired stationary distribution.
+<<>>=
+effectiveSize(as.mcmc.list(lineage)[[1]])
 @ 
 \end{document}
