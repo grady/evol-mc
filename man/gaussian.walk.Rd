@@ -16,6 +16,12 @@
   This is NOT the updater function itself. The return value
   is the updater function.
 }
+\examples{
+tgt <- function(state)
+  -mahalanobis(as.vector(state),colMeans(iris[1:4]),var(iris[1:4]))/2
+rprop <- gaussian.walk(diag(4)/20)
+iterate(10, metropolis(tgt,rprop), rep(0,4))
+}
 \author{
   Grady Weyenberg
 }

@@ -1,14 +1,14 @@
 \name{mutate}
 \alias{mutate}
 \alias{reproduce}
-\alias{reproduce2}
+\alias{weighted.reproduce}
 \title{Evolution/Tempering functions}
 \usage{
   mutate(ladder, rprop, dprop = NULL)
 
   reproduce(ladder)
 
-  reproduce2(ladder)
+  weighted.reproduce(ladder)
 }
 \arguments{
   \item{ladder}{density function.}

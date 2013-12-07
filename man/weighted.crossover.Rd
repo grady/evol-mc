@@ -1,8 +1,8 @@
-\name{crossover2}
-\alias{crossover2}
+\name{weighted.crossover}
+\alias{weighted.crossover}
 \title{Proposes a density weighted k=1 crossover.}
 \usage{
-  crossover2(state)
+  weighted.crossover(state)
 }
 \arguments{
   \item{state}{population matrix of parents}

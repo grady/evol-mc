@@ -172,4 +172,4 @@ c.chain <- function(...,recursive=FALSE){
 ##' @return an array (or possibly a matrix, or vector if appropriate)
 ##' @author Grady Weyenberg
 ##' @method as.array chain
-as.array.chain <- function(x,...) simplify2array(x,...) 
+as.array.chain <- function(x,...) simplify2array(x,...)

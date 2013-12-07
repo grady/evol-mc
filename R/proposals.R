@@ -8,7 +8,7 @@
 ##' @return new state with two neighbors interchanged.
 ##' @author Grady Weyenberg
 ##' @export
-exchange <- function(state,...){
+exchange <- function(state){
   n <- nrow(state)
   i <- sample.int(n,1)
   j <- i + (rbinom(1,1,0.5)*2L - 1L)
@@ -36,6 +36,7 @@ crossover <- function(state){
 ##' @param state population matrix of parents
 ##' @return a new state
 ##' @author Edward A. Roualdes
+##' @export
 weighted.crossover <- function(state){
     h <- apply(state,1,function(x) exp(dmix(x)))
     ## h <- h / sum(h) #normalize? (i don't think it's required?)
@@ -55,6 +56,7 @@ weighted.crossover <- function(state){
 ##' @param old old population matrix of parents
 ##' @param new newly proposed population matrix of parents
 ##' @author Edward A. Roualdes
+##' @export
 ld.wt.crossover <- function(new, old){
     ## find differing rows between old and new states
     if (is.null(i <- attr(new, 'i')))
@@ -95,8 +97,10 @@ gaussian.walk <- function(sigma){
 ##' to iterate to control the walker. On the other hand this method
 ##' means one less intermediate function to construct, and the
 ##' opportunity to adapt without creating a new proposal function.
+##' @param state current state
 ##' @param eps maximum magnitude of a jump
 ##' @author Grady Weyenberg
+##' @export
 ##' @examples
 ##' tgt <- function(state)
 ##'   -mahalanobis(as.vector(state),colMeans(iris[1:4]),var(iris[1:4]))/2

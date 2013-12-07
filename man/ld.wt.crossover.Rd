@@ -1,8 +1,8 @@
-\name{crossover2d}
-\alias{crossover2d}
+\name{ld.wt.crossover}
+\alias{ld.wt.crossover}
 \title{associated crossover density function}
 \usage{
-  crossover2d(old, new)
+  ld.wt.crossover(new, old)
 }
 \arguments{
   \item{old}{old population matrix of parents}

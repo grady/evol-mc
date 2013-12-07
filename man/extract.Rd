@@ -6,7 +6,7 @@ class.}
 \usage{
   \method{[}{chain} (x, i)
 
-  \method{[}{chain} (x, i, value) <- value
+  \\method{[<-}{chain}(x,i,value)
 }
 \arguments{
   \item{x}{object to be extracted}

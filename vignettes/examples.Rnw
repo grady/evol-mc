@@ -3,7 +3,7 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 %\VignetteIndexEntry{evolMC demo} 
-%\VignetteDepends{evolMC,knitr} 
+%\VignetteDepends{evolMC,knitr,scatterplot3d} 
 %\VignetteEngine{knitr::knitr}
 
 <<preamble,echo=FALSE,results='hide'>>=
@@ -209,7 +209,7 @@ wt.lineage <- iterate(2000, wt.evolve, init, bar=1)
 @ 
 
 <<>>=
-plot(lineage)
+plot(wt.lineage)
 m <- aperm(simplify2array(wt.lineage))
 ##wt.m <- aperm(simplify2array(wt.lineage))
 ##pt.m <- aperm(simplify2array(pt.lineage))
@@ -235,6 +235,7 @@ There is now an {\tt as.mcmc.list} method that converts chain objects
 to {\tt coda mcmc.list} objects. Here we compute the effective sample
 size of the chain with the desired stationary distribution.
 <<>>=
-effectiveSize(as.mcmc.list(lineage)[[1]])
+library(coda)
+effectiveSize(as.mcmc.list(wt.lineage)[[1]])
 @ 
 \end{document}
