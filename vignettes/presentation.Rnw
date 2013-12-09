@@ -54,6 +54,7 @@ See the ``example'' package vignette for demo code.
 
 
 \begin{frame}
+  \frametitle{Heating a Distribution}
   \begin{itemize}
   \item Consider a distribution $f(x|t) \propto \exp\{
     -H(x)/t \}$, where $t\ge 1$ is called the \emph{temperature} and
@@ -61,15 +62,21 @@ See the ``example'' package vignette for demo code.
     negative log-density of $x$, up to a constant.
   \item Increasing the temperature causes the distribution to become
     ``flatter'', i.e. to have thicker tails.
-    
-  \item A \emph{population}
-    $\mathbf{x}$ consists of $N$ \emph{individuals} $x_i$, $i = 1,
-    \ldots, N$, and we also define an associated set of temperatures
-    $\bt = (t_1,\ldots,t_N)$. It is assumed that $x_i \in \mathbb{R}^d$ and the $t_i$
-    are in descending order, terminating at the temperature of the
-    target distribution. (In most cases this means $t_N =1$.)
-  \item Each individual $x_i$ is independently
-    sampled from the distribution $f_i(x_i) \propto f(x_i|t_i)$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Genetic Algorithm Language}
+  \begin{itemize}
+  \item A \emph{population} $\mathbf{x}$ consists of $N$
+    \emph{individuals} $x_i$, $i = 1, \ldots, N$, where $x_i \in
+    \mathbb{R}^d$.
+  \item Associated with the population is a set of temperatures $\bt
+    = (t_1,\ldots,t_N)$. It is assumed that the $t_i$ are in
+    descending order, terminating at the temperature of the target
+    distribution. (In most cases this means $t_N =1$.)
+  \item Each individual $x_i$ is independently sampled from the
+    distribution $f_i(x_i) \propto f(x_i|t_i)$.
   \end{itemize}
 \end{frame}
 
@@ -157,6 +164,25 @@ See the ``example'' package vignette for demo code.
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Simulation Setup}
+  \begin{itemize}
+  \item Target distribution: 20 part $\mathcal{N}(\mu, 0.1I_3)$ w/ equal mixing proporitions and $\mu \in [-10, 10]^3$.
+  \item Mutation probabilities: $p_m \in \{0.1, 0.5, 0.9, 1.0\}$
+  \item Mutation updater: $u_m \in \{uniform, Gaussian\}$
+  \item Temperatures: $ \bt \in \{ (1,5), (1, 2, 4, 8, 15), (1,5,15,30,50) \}$
+  \item MH: multivariate normal proposal distribution
+  \item Iterations: $2e4$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Simulation Results}
+  \vspace{-.6in}
+  \centering
+  \includegraphics[scale=0.5]{figure/final_plot.pdf}
 \end{frame}
 
 \end{document}
