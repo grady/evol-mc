@@ -182,7 +182,7 @@ See the ``example'' package vignette for demo code.
   \frametitle{Simulation Results}
   \vspace{-.6in}
   \centering
-  \includegraphics[scale=0.5]{figure/final_plot.pdf}
+  \includegraphics[scale=0.35]{figure/final_plot.png}
 \end{frame}
 
 \end{document}
