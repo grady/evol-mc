@@ -10,7 +10,6 @@
 *.ttt
 *.aaa
 vignettes/cache
-vignettes/figure
 vignettes/*.nav
 vignettes/*.snm
 vignettes/*.toc
