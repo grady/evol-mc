@@ -74,7 +74,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Getting the package}
+  \frametitle{Getting the Package}
   Package {\tt evolMC}.
  
   \url{http://github.com/grady/evol-mc}
@@ -136,6 +136,7 @@ See the ``example'' package vignette for demo code.
     distribution. (In most cases this means $t_N =1$.)
   \item Each individual $x_i$ is independently sampled from the
     distribution $f_i(x_i) \propto f(x_i|t_i)$.
+  \item Parallel Tempering exchanges individuals at different temperatures using a Metropolis-Hastings step to allow the walker to more easily find separated modes.
   \end{itemize}
 \end{frame}
 
@@ -240,8 +241,43 @@ See the ``example'' package vignette for demo code.
 \begin{frame}
   \frametitle{Simulation Results}
   \vspace{-.6in}
-  \centering
-  \includegraphics[scale=0.35]{figure/final_plot.png}
+  \begin{center}
+      \includegraphics[scale=0.35]{figure/final_plot1.png}
+  \end{center}
+\end{frame}
+\begin{frame}
+  \frametitle{Simulation Results}
+  \vspace{-.6in}
+  \begin{center}
+      \includegraphics[scale=0.35]{figure/final_plot2.png}
+  \end{center}
+\end{frame}
+\begin{frame}
+  \frametitle{Simulation Results}
+  \vspace{-.6in}
+  \begin{center}
+      \includegraphics[scale=0.35]{figure/final_plot3.png}
+  \end{center}
+\end{frame}
+\begin{frame}
+  \frametitle{Simulation Results}
+  \vspace{-.6in}
+  \begin{center}
+      \includegraphics[scale=0.35]{figure/final_plot4.png}
+  \end{center}
+\end{frame}
+\begin{frame}
+  \frametitle{Simulation Results}
+  \vspace{-.6in}
+  \begin{center}
+      \includegraphics[scale=0.35]{figure/final_plot5.png}
+  \end{center}
+\end{frame}
+
+\nocite{Geyer:1992,Hastings:1970,Liang:2000,Liang:2011,Metropolis:1953}
+\begin{frame}[allowframebreaks]
+  \frametitle{references}
+  \bibliographystyle{amsalpha} \bibliography{refs}
 \end{frame}
 
 \end{document}
