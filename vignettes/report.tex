@@ -97,40 +97,32 @@
 %%    \section{Introduction}
 \vspace{1cm}
 \label{sec:introduction}
+Markov Chain Monte Carlo methods, as exemplified by the classic
+\cite{Metropolis:1953} and \cite{Hastings:1970} algorithms, are an
+important tool in contemporary statistics.  However, the basic
+algorithms often do not work well in situations where the distribution of
+interest possesses multiple modes. Several extensions have been
+suggested to alleviate this problem. In this paper we explore two such
+algorithms, Parallel Tempering \citep{swendsen1986replica}, and a further
+extension, the Evolutionary algorithms of \cite{Liang:2000}.
 
-Population based MCMC methods are becoming increasingly common in
-applied statistics.  Parallel tempering, for instance, starts by
-simulating multiple sequences from a heated target distribution to
-encourage a more thorough global search of the support space.
-\cite{Liang:2011} introduced evolutionary MC that builds upon, and
-generalizes, parallel tempering by blending with it theory from
-evolutionary algorithms. Evolutionary Monte Carlo (EMC) is a
-population based Monte Carlo method that intelligently evolves at each
-iteration.
+Parallel tempering  simulates multiple sequences from a ``heated''
+target distribution, and then proposes to exchange information between
+the chains according to the Metropolis rule. This helps to encourage a
+more thorough global search of the support space. \citep{Liang:2011}
+Evolutionary Monte Carlo (EMC) builds upon parallel tempering by
+blending with it ideas taken from evolutionary biology. In particular,
+the Chromosomal crossovers that are observed in Meiosis are
+simulated. Such crossovers are thought to be an important component of
+the success of sexual reproduction.
 
-The discussion of population based Monte Carlo methods necessarily
-begins by introducing some terminology. The following recounts the
-terminology given in Chapter 5 of \cite{Liang:2011}: We wish to sample
-from a distribution $f(x|t) \propto \exp\{ -H(x)/t \}$, where $t\ge 1$
-is called the \emph{temperature} and $H(x)$, called the \emph{fitness
-  function}, corresponds to the negative log-density of $x$, up to a
-constant. A \emph{population} $\mathbf{x}$ consists of $N$
-\emph{individuals} $x_i$, $i = 1, \ldots, N$, and we also define an
-associated set of temperatures $\bt = (t_1,\ldots,t_N)$. ($x_i \in
-\mathbb{R}^d$ and the $t_i$ are in descending order.) Each individual
-$x_i$ is independently sampled from the distribution $f_i(x_i) \propto
-f(x_i|t_i)$.  For any such distribution, the \emph{partition function}
-$Z(t)= \int_\X f(x|t) dx$ is the inverse of the normalizing
-constant. The \emph{Boltzmann distribution} of the population $\bx$ is
-the product of the individual distributions, $f(\bx) \propto \exp \{
--\sum_{i=1}^N H(x_i)/ t_i \}$, with $Z(\bt) := \prod_{i=1}^N Z(t_i)$
-as the inverse of the normalizing constant.
+
 
 Iterations of the EMC algorithm consist of three operations: mutation,
 crossover, and exchange. Each type of operation makes a specific type
 of modification to the current population, and the change is carried
 forward to the next generation with a probability governed by a
-Metropolis-type rule.
+Metropolis-type rule.\citep{Liang:2011}
 
 In general terms, a mutation operation adds noise to the current
 population. This can be analogous to a basic random walk type
@@ -162,6 +154,23 @@ Metropolis sampler to mix between the modes.
 
 \subsection{Algorithms}
 \label{sec:algorithms}
+The discussion of population based Monte Carlo methods necessarily
+begins by introducing some terminology. The following recounts the
+terminology given in Chapter 5 of \cite{Liang:2011}: We wish to sample
+from a distribution $f(x|t) \propto \exp\{ -H(x)/t \}$, where $t\ge 1$
+is called the \emph{temperature} and $H(x)$, called the \emph{fitness
+  function}, corresponds to the negative log-density of $x$, up to a
+constant. A \emph{population} $\mathbf{x}$ consists of $N$
+\emph{individuals} $x_i$, $i = 1, \ldots, N$, and we also define an
+associated set of temperatures $\bt = (t_1,\ldots,t_N)$. ($x_i \in
+\mathbb{R}^d$ and the $t_i$ are in descending order.) Each individual
+$x_i$ is independently sampled from the distribution $f_i(x_i) \propto
+f(x_i|t_i)$.  For any such distribution, the \emph{partition function}
+$Z(t)= \int_\X f(x|t) dx$ is the inverse of the normalizing
+constant. The \emph{Boltzmann distribution} of the population $\bx$ is
+the product of the individual distributions, $f(\bx) \propto \exp \{
+-\sum_{i=1}^N H(x_i)/ t_i \}$, with $Z(\bt) := \prod_{i=1}^N Z(t_i)$
+as the inverse of the normalizing constant.
 
 The EMC algorithm we have implemented is described briefly in
 Algorithms \ref{alg:emc}--\ref{alg:exchange}.  The mutate step uses a
@@ -224,7 +233,7 @@ where the parents are selected with weights based on their fitness.
 \subsection{Simulations}
 \label{sec:methods-simulations}
 The algorithms described have several tuning parameters that the user
-must supply. We ran simulations in an attempt to come to a qualatative
+must supply. We ran simulations in an attempt to come to a qualitative
 understanding of the effects that these tuning parameters have on the
 performance of the Markov Chain. We ran chains on all combinations of
 options described below.
@@ -237,18 +246,55 @@ great deal of freedom in the selection of the temperature ladder, but
 we attempted to study the effect of an insufficient number of
 temperature settings, as well as the effect of changing the spacing of
 temperature levels.)  The mutation/crossover selection probabilities:
-$p_m \in \{0.1, 0.5, 0.9, 1.0\}$. Note that $p_m = 1.0$ is equiavalent to
+$p_m \in \{0.1, 0.5, 0.9, 1.0\}$. Note that $p_m = 1.0$ is equivalent to
 parallel tempering.
 
+The chains were run for a $20,000$ iterations. This is not nearly a
+long enough run to accurately estimate the mixing proportions, however
+it should allow us to get a sense of how easily the chains explore the
+space. If a mode is not explored by this point, then the chain is
+clearly mixing quite poorly. However if all modes are being visited in
+this amount of time then the average dwelling time per mode is at most
+approximately $1000$ iterations, which is not a shockingly large number.
 \section{Results}
 \label{sec:results}
 
 \subsection{Software}
 \label{sec:software}
 
-We present the R package evolMC, which is a framework for doing Markov-Chain Monte Carlo simulations. The evolMC package includes implementations of several MCMC algorithms, including Metropolis-Hastings, Gibbs, parallel tempering, and the evolutionary updating methods. The package is available from \url{http://github.com/grady/evol-mc/}.
+We present the R package evolMC, which is a framework for doing
+Markov-Chain Monte Carlo simulations. The evolMC package includes
+implementations of several MCMC algorithms, including
+Metropolis-Hastings, Gibbs, parallel tempering, and the evolutionary
+updating methods. The package is available from
+\url{http://github.com/grady/evol-mc/}.
 
-The package aims to provide a general framework for constructing a chain, leaving it up to the user to provide the pieces specific to the problem. The user must first define a \emph{state object} and then implement a number of functions which act on this state object. In many traditional cases this state object can simply be a vector of reals, but any R object (e.g. a phylogenetic tree object defined by a 3rd-party package) can be used. The functions provided by evolMC will eventually produce a \emph{chain} object, which is simply an R list where each element is an instance of the state object.
+The package aims to provide a general framework for constructing a
+chain, leaving it up to the user to provide the pieces specific to the
+problem. The user must first define a \emph{state object} and then
+implement a number of functions which act on this state object. In
+many traditional cases this state object can simply be a vector of
+reals, but any R object (e.g. a phylogenetic tree object defined by a
+3rd-party package) can be used. This generality departs from many
+existing R MCMC packages, which enforce vector- or array-type
+structures for the random elements in question.
+
+The functions provided by evolMC will eventually produce a
+\emph{chain} object, which is simply an R list where each element is
+an instance of the state object. A function is provided to convert
+this object into a {\tt coda::mcmc.list} object. The evolMC package
+includes a vignette demonstrating a few basic use cases, with example
+code.
+
+
+The main job of the user of evolMC is to define a few basic functions
+which can interact in specified ways with whatever object is selected
+to represent states of the chain. For example, the user will often
+need to implement a function which evaluates a log-density for a given
+state. Using the routines provided by evolMC, one will then manipulate
+these functions, eventually producing a function which implements some
+desired MCMC algorithm.
+
 
 \subsection{Simulations}
 \label{sec:simulations}
@@ -272,11 +318,11 @@ variance weighted by the temperature for the mutation operation
 produced better results than using a uniform proposal with fixed
 support.
 
-The most suprising and informative result concerns the probability of
+The most surprising and informative result concerns the probability of
 mutation or crossover (the additional operation introduced in the
 evolutionary MC method).  Lower probabilities for the crossover
 operation (and therefore higher probabilities for the mutation
-operation) resulted in more modes of the target distribtuion being
+operation) resulted in more modes of the target distribution being
 sampled from.  In fact, for this problem parallel tempering produced
 samples just as good or better than the evolutionary Monte Carlo
 method did.
@@ -292,26 +338,26 @@ method did.
 
 \begin{table}
   \centering
-  \caption{Number of modes discovered by the chain for selected tuning parameter combinations.}
-  \label{table}
-  \begin{tabular}{lllr}
+  \begin{tabular}{llcc}
+    \hline\hline
+    Temps & Mutator & $p_m$ & Modes \\ 
     \hline
-    temp & prop.fun & mutate & modes\_found \\ 
-    \hline
-    two & rgaus & 0.1 & 2.00 \\ 
-    two & rgaus & 0.9 & 12.00 \\ 
-    two & rgaus & 0.5 & 13.00 \\ 
-    two & rgaus & 1 & 14.00 \\ 
-    five.wide & rgaus & 0.1 & 17.00 \\ 
-    five & rgaus & 0.1 & 18.00 \\ 
-    five & rgaus & 0.5 & 20.00 \\ 
-    five.wide & rgaus & 0.5 & 20.00 \\ 
-    five & rgaus & 0.9 & 20.00 \\ 
-    five.wide & rgaus & 0.9 & 20.00 \\ 
-    five & rgaus & 1 & 20.00 \\ 
-    five.wide & rgaus & 1 & 20.00 \\ 
-    \hline
+    two & Gaussian & 0.1 & 2 \\ 
+    two & Gaussian & 0.9 & 12 \\ 
+    two & Gaussian & 0.5 & 13 \\ 
+    two & Gaussian & 1 & 14 \\ 
+    five.wide & Gaussian & 0.1 & 17 \\ 
+    five & Gaussian & 0.1 & 18 \\ 
+    five & Gaussian & 0.5 & 20 \\ 
+    five.wide & Gaussian & 0.5 & 20 \\ 
+    five & Gaussian & 0.9 & 20 \\ 
+    five.wide & Gaussian & 0.9 & 20 \\ 
+    five & Gaussian & 1 & 20 \\ 
+    five.wide & Gaussian & 1 & 20 \\ 
+    \hline\hline
   \end{tabular}
+    \caption{Number of modes discovered by the chain for selected tuning parameter combinations.}
+  \label{table}
 \end{table}
 
 \section{Discussion}
