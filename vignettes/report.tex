@@ -198,11 +198,15 @@ where the parents are selected with weights based on their fitness.
   \label{alg:mutate}
   \footnotesize
   \begin{algorithmic}
-  \Procedure{Mutate}{} \State Copy the current population to $x$.  \ForAll{individuals in $x$} \State $y \gets \mathcal N_d(x_i,t_i \sigma^2I)$ \Wp{$\min\{1,\exp(\cdots)\}$} \State $x_i \gets y$
-    \EndWp
-    \EndFor
-    \State Set current population to $x$.
-    \EndProcedure
+  \Procedure{Mutate}{} 
+  \State Copy the current population to $x$.  \ForAll{individuals in $x$} 
+  \State $y \gets \mathcal N_d(x_i,t_i \sigma^2I)$ 
+  \Wp{$\min\{1,\exp(-H(y)/t_i + H(x_i)/t_i)\}$}
+  \State $x_i \gets y$
+  \EndWp
+  \EndFor
+  \State Set current population to $x$.
+  \EndProcedure
 \end{algorithmic}
 \end{algorithm}
 
@@ -213,7 +217,12 @@ where the parents are selected with weights based on their fitness.
   \begin{algorithmic}
   \Procedure{Crossover}{} \State Copy the current population to $x$.  \ForAll {individuals in $x$} \State $w_i \gets \exp(-H(x_i))$
     \EndFor
-    \State Select $k$ uniformly from $\{1\colon d\}.$ \State Select $i$ from $\{1\colon N\}$ with weights proportional to $\{w_\cdot\}$.  \State Select $j$ uniformly from $\{1\colon N\} \backslash \{i\}.$ \State In $x$, swap elements $k\colon d$ of individuals $i$ and $j$.  \Wp {$\min\{1, \exp(-H(x_i)/t_i +H(x_j)/t_j+\cdots)\}$} \State Set the current population to $x$.
+    \State Select $k$ uniformly from $\{1\colon d\}.$ 
+    \State Select $i$ from $\{1\colon N\}$ with weights proportional to $\{w_\cdot\}$.  
+    \State Select $j$ uniformly from $\{1\colon N\} \backslash \{i\}.$ 
+    \State In $x$, swap elements $k\colon d$ of individuals $i$ and $j$.  
+    \Wp {$\cdots$} \Comment{Metropolis update.}
+    \State Set the current population to $x$.
     \EndWp
     \EndProcedure
 \end{algorithmic}
@@ -224,7 +233,13 @@ where the parents are selected with weights based on their fitness.
   \label{alg:exchange}
   \footnotesize
   \begin{algorithmic}
-  \Procedure{Exchange}{} \State Copy the current population to $x$.  \State Select $i$ uniformly from $\{1\colon N\}$.  \State Select $j$ uniformly from $\{i\pm 1\}\cap\{1\colon N\}$.  \State Swap individuals $i,j$ of $x$.  \Wp{$\min\{1,\exp(-H(x_i)/t_i +H(x_j)/t_j)\}$} \State Set the current population to $x$.
+  \Procedure{Exchange}{} 
+  \State Copy the current population to $x$.  
+  \State Select $i$ uniformly from $\{1\colon N\}$.  
+  \State Select $j$ uniformly from $\{i\pm 1\}\cap\{1\colon N\}$.  
+  \State Swap individuals $i,j$ of $x$.  
+  \Wp{$\min\{1,\exp(-H(x_i)/t_i -H(x_j)/t_j+H(x_i)/t_j + H(x_j)/t_i)\}$}
+  \State Set the current population to $x$.
     \EndWp
     \EndProcedure
 \end{algorithmic}
@@ -329,8 +344,10 @@ method did.
 
 \begin{figure}
   \centering
-  \caption{Scatterplot of states realized by selected tuning parameter
-    settings.}
+  \caption{Scatterplot of first 20,000 states realized by selected tuning parameter
+    settings. Colors are ordered with less successful chains placed in
+  front of more successful ones. This means that, for example, the
+  green chain has explored 3 more modes than any other chain depicted.} 
   \label{scatterplot}
   \includegraphics[width=\textwidth]{figure/final_plot.png}
 \end{figure}
@@ -356,7 +373,7 @@ method did.
     five.wide & Gaussian & 1 & 20 \\ 
     \hline\hline
   \end{tabular}
-    \caption{Number of modes discovered by the chain for selected tuning parameter combinations.}
+    \caption{Number of modes discovered by the chain within 20,000 interations, for selected tuning parameter combinations.}
   \label{table}
 \end{table}
 
