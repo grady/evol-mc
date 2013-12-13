@@ -81,7 +81,7 @@
 
 
 
-\title{evolMC: a package for Monte-Carlo simulation}
+\title{evolMC: a package for Monte Carlo simulation}
 \author{W Burchett \and E Roualdes \and G Weyenberg}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 
@@ -263,13 +263,13 @@ temperature levels.)  The mutation/crossover selection probabilities:
 $p_m \in \{0.1, 0.5, 0.9, 1.0\}$. Note that $p_m = 1.0$ is equivalent to
 parallel tempering.
 
-The chains were run for a $20,000$ iterations. This is not nearly a
+The chains were run for $20,000$ iterations. This is not nearly a
 long enough run to accurately estimate the mixing proportions, however
 it should allow us to get a sense of how easily the chains explore the
 space. If a mode is not explored by this point, then the chain is
 clearly mixing quite poorly. However if all modes are being visited in
 this amount of time then the average dwelling time per mode is at most
-approximately $1000$ iterations, which is not a shockingly large number.
+approximately $1000$ iterations, which is not a large number.
 \section{Results}
 \label{sec:results}
 
@@ -395,7 +395,7 @@ mixing of the chain.
 
 The crossover that we implemented for this simulation study is perhaps
 the simplest example of a crossover procedure, and indeed
-\cite{Liang:2011} suggests a few more complicated ones. Further work
+\cite{Liang:2011} suggest a few more complicated ones. Further work
 is warranted to explore the performance of these more complicated
 crossover options. The problem of automated temperature selection is
 also discussed, and implementation of these methods is a next step in

@@ -13,7 +13,7 @@
 
 \usetheme{Dresden}
 
-\title{evolMC: a package for Monte-Carlo simulation}
+\title{evolMC: a package for Monte Carlo simulation}
 \author{W Burchett \and E Roualdes \and G Weyenberg}
 \date{Fall 2013}
 
